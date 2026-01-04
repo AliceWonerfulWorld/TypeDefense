@@ -154,11 +154,6 @@ public class TypeDefense extends Application {
             gc.fillText(e.word, e.x, e.y);
         }
 
-        // 敵がいなくなったらクリア画面を表示する
-        if (enemies.isEmpty()) {
-            gc.setFill(Color.YELLOW);
-            gc.fillText("GAME CLEAR!", 200, 250);
-        }
     }
 
     @Override
