@@ -23,6 +23,6 @@ public class WordEnemy {
         if (word.length() > 0) {
             word = word.substring(1);  // 先頭の1文字を削る
         }
-        return word.length > 0;  // 文字が残っているかどうかでtureかfalseを返す
+        return word.length() > 0;  // 文字が残っているかどうかでtureかfalseを返す
     }
 }
