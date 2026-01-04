@@ -50,4 +50,19 @@ public class TypeDefense extends Application {
         // ゲームのループを開始する
         startGameLoop();
     }
+
+    // ゲームのアニメーションを管理するメソッド
+    private void startGameLoop() {
+        timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+               Platform.runLater(() -> {
+                   update();   // ゲームの状態を更新する
+                   draw();     // ゲームの描画を行う
+               });
+            }
+        }, 0, 33); // 0秒後に開始して、33ミリ秒ごとにrun()を実行する。
+    }
 }
