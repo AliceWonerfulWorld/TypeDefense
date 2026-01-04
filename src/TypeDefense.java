@@ -22,13 +22,19 @@ public class TypeDefense extends Application {
     private static final int WIDTH = 600;
     private static final int HEIGHT = 500;
 
+    private static final String[] WORDS = {
+        "JAVA","CLASS","OBJECT","METHOD","PUBLIC","STATIC"
+        "VOID","RETURN","IMPORT","JAVAFX","CANVAS","NODE",
+        "STRING","INTEGER","DOUBLE","BOOLEAN","SYSTEM","OUT"
+    };
+
     private Canvas canvas;       // 描画領域
     private GraphicsContext gc;  // 描画用の筆
     private Timer timer;         // タイマー
     private List<WordEnemy> enemies = new ArrayList<>(); // 敵の管理用のリスト
-
-    // スコアを記録するための変数
-    private int score = 0;
+    private int score = 0;// スコアを記録するための変数
+    private int spawnCounter = 0; // 時間をカウントする
+    private int spawnRate = 60;   // 何カウントごとに敵を出すか
 
     public static void main(String[] args) {
         launch(args);
