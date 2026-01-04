@@ -26,6 +26,9 @@ public class TypeDefense extends Application {
     private Timer timer;         // タイマー
     private List<WordEnemy> enemies = new ArrayList<>(); // 敵の管理用のリスト
 
+    // スコアを記録するための変数
+    private int score = 0;
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -40,13 +43,19 @@ public class TypeDefense extends Application {
 
         // ウィンドウの表示設定
         Scene scene = new Scene(root, WIDTH, HEIGHT);
+
+        // キーボードが押されたらprocessInputメソッドを呼ぶ
+        scene.setOnKeyPressed(e -> processInput(e.getCode()));
+
+
         stage.setScene(scene);
         stage.setTitle("TypeDefense");
         stage.show(); // ウィンドウを表示する
 
-        // テスト用の敵を作成する
-        WordEnemy enemy = new WordEnemy("TEST", 300, 0);
-        enemies.add(enemy);
+        // テストの敵データ
+        enemies.add(new WordEnemy("JAVA", 100, 0));
+        enemies.add(new WordEnemy("CLASS", 300, -50));
+        enemies.add(new WordEnemy("OBJECT", 450, 100));
 
         // ゲームのループを開始する
         startGameLoop();
