@@ -74,5 +74,26 @@ public class TypeDefense extends Application {
          }
     }
 
-    // 
+    // ゲームの描画を行うメソッド
+    private void draw() {
+        // 画面を黒で塗りつぶしてリセットする (描画の前に必ず行う)
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0, 0, WIDTH, HEIGHT);
+
+        // 敵を描画する
+        gc.setFill(Color.WHITE);                // 文字の色は白
+        gc.setFont(new Font("Consolas", 20));   // フォント設定
+
+        // リストにいるすべての敵を描画する
+        for (WordEnemy e : enemies) {
+            // 敵(e.word)を横(e.x)、縦(e.y)の場所に描画する
+            gc.fillText(e.word, e.x, e.y);
+        }
+    }
+
+    @Override
+    public void stop() throws Exception {
+        if (timer != null) timer.cancel();
+        super.stop();
+    }
 }
