@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Random;
-import java.fx.scene.input.Image;
+import javafx.scene.image.Image;
 
 
 public class TypeDefense extends Application {
@@ -69,7 +69,6 @@ public class TypeDefense extends Application {
             // もし画像がなくてもエラーで止まらないようにする
             System.out.println("画像読み込みエラー: img/UFO.pngが見つかりません");
         }
-        
         
         enemies.clear();  // ゲーム開始時は敵は0体からスタートする
         startGameLoop();// ゲームのループを開始する
@@ -162,6 +161,18 @@ public class TypeDefense extends Application {
 
         // リストにいるすべての敵を描画する
         for (WordEnemy e : enemies) {
+            // 画像があれば描画する
+            if (enemyImage != null && !enemyImage.isError()) {
+                // drawImage(画像, x, y, width, height)
+                // 敵の座標(e.x, e.y)を中心にするためにずらして表示する
+                gc.drawImage(enemyImage, e.x - 20, e.y - 40, 40, 40);
+            } else {
+                // 画像がないときは赤い四角を描く
+                gc.setFill(Color.RED);
+                gc.fillRect(e.x - 20, e.y - 40, 40, 40);
+                gc.setFill(Color.WHITE); // 文字色を白に戻す
+            }
+
             // 敵(e.word)を横(e.x)、縦(e.y)の場所に描画する
             gc.fillText(e.word, e.x, e.y);
         }
