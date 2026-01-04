@@ -119,10 +119,19 @@ public class TypeDefense extends Application {
         gc.setFill(Color.WHITE);                // 文字の色は白
         gc.setFont(new Font("Consolas", 20));   // フォント設定
 
+        // 左上にスコアを表示する
+        gc.fillText("Score: " + score, 20, 30);
+
         // リストにいるすべての敵を描画する
         for (WordEnemy e : enemies) {
             // 敵(e.word)を横(e.x)、縦(e.y)の場所に描画する
             gc.fillText(e.word, e.x, e.y);
+        }
+
+        // 敵がいなくなったらクリア画面を表示する
+        if (enemies.isEmpty()) {
+            gc.setfill(Color.YELLOW);
+            gc.fillText("GAME CLEAR!", 200, 250);
         }
     }
 
