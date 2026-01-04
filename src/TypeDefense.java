@@ -36,6 +36,7 @@ public class TypeDefense extends Application {
     private int score = 0;// スコアを記録するための変数
     private int spawnCounter = 0; // 時間をカウントする
     private int spawnRate = 60;   // 何カウントごとに敵を出すか
+    private Image enemyImage;  // 敵の画像データを入れるための変数
 
     public static void main(String[] args) {
         launch(args);
@@ -59,8 +60,18 @@ public class TypeDefense extends Application {
         stage.setScene(scene);
         stage.setTitle("TypeDefense");
         stage.show(); // ウィンドウを表示する
-        enemies.clear();  // ゲーム開始時は敵は0体からスタートする
 
+        // 画像ファイルの読み込み処理
+        try {
+            // 画像ファイルがあるかtryする
+            enemyImage = new Image("file:img/UFO.png");
+        } catch (Exception e) {
+            // もし画像がなくてもエラーで止まらないようにする
+            System.out.println("画像読み込みエラー: img/UFO.pngが見つかりません");
+        }
+        
+        
+        enemies.clear();  // ゲーム開始時は敵は0体からスタートする
         startGameLoop();// ゲームのループを開始する
     }
 
