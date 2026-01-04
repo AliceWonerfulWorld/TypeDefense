@@ -105,6 +105,15 @@ public class TypeDefense extends Application {
 
     // ゲームの状態を更新するメソッド
     private void update() {
+         // 敵を出すかどうかチェックする
+         spawnCounter++; //カウンタを1増やす
+
+         if (spawnCounter >= spawnRate) {
+            // カウンタが設定値を超えたら敵を出す
+            spawnEnemy();
+            spawnCounter = 0; // カウンタをリセットする
+         }
+
          // リストにいるすべての敵に対して「動け」と命令する
          for (WordEnemy e : enemies) {
             e.move(2.0);  // 2.0ピクセルずつ下に移動
