@@ -15,6 +15,14 @@ public class WordEnemy {
 
     // 敵の動きを決めるメソッド
     public void move(double speed) {
-        this.y = this.y + speed; // y座標にスピードの分を足す(画面下方向へ進む)
+        this.y += speed; // y座標にスピードの分を足す(画面下方向へ進む)
+    }
+
+    //  攻撃を受けたら(キーボードで入力したら)先頭の文字を消去するメソッド
+    public boolean damage() {
+        if (word.length() > 0) {
+            word = word.substring(1);  // 先頭の1文字を削る
+        }
+        return word.length > 0;  // 文字が残っているかどうかでtureかfalseを返す
     }
 }
