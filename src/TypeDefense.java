@@ -23,7 +23,7 @@ public class TypeDefense extends Application {
     private static final int HEIGHT = 500;
 
     private static final String[] WORDS = {
-        "JAVA","CLASS","OBJECT","METHOD","PUBLIC","STATIC"
+        "JAVA","CLASS","OBJECT","METHOD","PUBLIC","STATIC",
         "VOID","RETURN","IMPORT","JAVAFX","CANVAS","NODE",
         "STRING","INTEGER","DOUBLE","BOOLEAN","SYSTEM","OUT"
     };
@@ -118,6 +118,21 @@ public class TypeDefense extends Application {
          for (WordEnemy e : enemies) {
             e.move(2.0);  // 2.0ピクセルずつ下に移動
          }
+    }
+
+    // ランダムな敵を生成するメソッド
+    private void spawnEnemy() {
+       Random rand = new Random();
+
+       // 単語リストからランダムに1つ選ぶ
+       int index = rand.nextInt(WORDS.length); // 0 ～ (単語数-1)の乱数
+       String word = WORDS[index];
+
+       // 出現位置(X座標)もランダムにする
+       double x = rand.nextInt(WIDTH - 100) + 50; 
+
+       // リストに追加する (Y座標は画面一番上の0)
+       enemies.add(new WordEnemy(word, x, 0));
     }
 
     // ゲームの描画を行うメソッド
