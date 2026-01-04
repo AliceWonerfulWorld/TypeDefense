@@ -61,6 +61,31 @@ public class TypeDefense extends Application {
         startGameLoop();
     }
 
+    private void processInput(KeyCode code) {
+        String key = code.toString();   // 押されたキー (例: "A")
+
+        // 「一番下にいる(yが大きい)」かつ「入力された文字で始まる」敵を探す
+        WordEnemy target = null;
+        double maxY = -1000;
+
+        for (WordEnemy e : enemies) {
+            if (e.word.startsWith(key) && e.y > maxY) {
+                maxY = e.y;
+                target = e;
+            }
+        }
+
+        if (target != null) {
+            boolean isAlive = target.damage(); // 文字を1つずつ消す
+            if (!isAlive) {
+                // 全部消えたらリストから削除する
+                enemies.remove(target);
+                score += 100; // スコア加算
+            }
+        }
+    }
+
+
     // ゲームのアニメーションを管理するメソッド
     private void startGameLoop() {
         timer = new Timer();
