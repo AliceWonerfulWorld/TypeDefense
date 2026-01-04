@@ -46,6 +46,12 @@ public class TypeDefense extends Application {
     private int spawnRate = 60;   // 何カウントごとに敵を出すか
     private Image enemyImage;  // 敵の画像データを入れるための変数
 
+    // UI部品
+    private TextField nameField; // 名前入力欄
+    private Button startButton;  // スタートボタン
+    private RadioButton easyBtn, hardBtn;  // 難易度選択
+    private boolean isRunning false; // ゲーム中であるかどうか
+    
     public static void main(String[] args) {
         launch(args);
     }
