@@ -65,4 +65,14 @@ public class TypeDefense extends Application {
             }
         }, 0, 33); // 0秒後に開始して、33ミリ秒ごとにrun()を実行する。
     }
+
+    // ゲームの状態を更新するメソッド
+    private void update() {
+         // リストにいるすべての敵に対して「動け」と命令する
+         for (WordEnemy e : enemies) {
+            e.move(2.0);  // 2.0ピクセルずつ下に移動
+         }
+    }
+
+    // 
 }
