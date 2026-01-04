@@ -58,14 +58,9 @@ public class TypeDefense extends Application {
         stage.setScene(scene);
         stage.setTitle("TypeDefense");
         stage.show(); // ウィンドウを表示する
+        enemies.clear();  // ゲーム開始時は敵は0体からスタートする
 
-        // テストの敵データ
-        enemies.add(new WordEnemy("JAVA", 100, 0));
-        enemies.add(new WordEnemy("CLASS", 300, -50));
-        enemies.add(new WordEnemy("OBJECT", 450, 100));
-
-        // ゲームのループを開始する
-        startGameLoop();
+        startGameLoop();// ゲームのループを開始する
     }
 
     private void processInput(KeyCode code) {
