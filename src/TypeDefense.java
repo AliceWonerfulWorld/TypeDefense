@@ -28,4 +28,26 @@ public class TypeDefense extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+
+    @Override
+    public void start(Stage stage) {
+        // 画面のベース
+        BorderPane root = new BorderPane();   // レイアウトの部品
+        canvas = new Canvas(WIDTH, HEIGHT);   // 描画領域の作成する
+        gc = canvas.getGraphicsContext2D();   // 描画用の筆を取得する
+        root.setCenter(canvas);               // 描画領域を画面中央に配置する
+
+        // ウィンドウの表示設定
+        Scene scene = new Scene(root, WIDTH, HEIGHT);
+        stage.setScene(scene);
+        stage.setTitle("TypeDefense");
+        stage.show(); // ウィンドウを表示する
+
+        // テスト用の敵を作成する
+        WordEnemy enemy = new WordEnemy("TEST", 300, 0);
+        enemies.add(enemy);
+
+        // ゲームのループを開始する
+        startGameLoop();
+    }
 }
