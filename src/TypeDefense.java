@@ -58,8 +58,49 @@ public class TypeDefense extends Application {
 
     @Override
     public void start(Stage stage) {
-        // 画面のベース
         BorderPane root = new BorderPane();   // レイアウトの部品
+
+        VBox topContainer = new VBox();
+
+        // メニューバー
+        MenuBar menuBar = new MenuBar();
+        Menu fileMenu = new Menu("ファイル");
+        MenuItem exitItem = new MenuItem("終了");
+        exitItem.setOnAction(e -> Platform.exit());
+        fileMenu.getItems().add(exitItem);
+        menuBar.getMenus().add(fileMenu);
+
+        // 操作パネル
+        HBox controls = new HBox(10);  // 部品の間隔を10px空ける
+        controls.setPadding(new Insets(10)); // 周りに余白を作る
+        controls.setAlignment(Pos.CENTER_LEFT); // 左寄せ
+        controls.setStyle("-fx-background-color: #eee;"); // 背景を灰色にする
+
+        // 名前入力
+        Label nameLabel = new Label("名前:");
+        nameField = new TextField();
+        nameField.setPromptText("プレイヤー名");
+        nameField.setPrefWidth(100);
+
+        // 難易度選択
+        ToggleGroup group = new ToggleGroup(); // 1つしか選択できなくするためのグループ
+        easyBtn = new RadioButton("Easy");
+        easyBtn.setToggleGroup(group);
+        easyBtn.setSelected(true);   // 初期配置はEasy
+        hardBtn = new RadioButton("Hard");
+        hardBtn.setToggleGroup(group);
+
+        // スタートボタン
+        startButton = new Button("ゲーム開始");
+        startButton.setOnAction(e -> gameStart()) // 押したらgameStart()を呼ぶ
+
+        // 全部横に並べる
+        controls.getChildren().addAll(nameLabel, nameField, easyBtn, hardBtn, startButton);
+
+        // メニューと操作パネルを縦に積む
+        topContainer.getChildren().addAll(menuBar, controls);
+        root.setTop(topContainer);
+
         canvas = new Canvas(WIDTH, HEIGHT);   // 描画領域の作成する
         gc = canvas.getGraphicsContext2D();   // 描画用の筆を取得する
         root.setCenter(canvas);               // 描画領域を画面中央に配置する
