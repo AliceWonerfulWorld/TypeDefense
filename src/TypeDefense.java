@@ -218,35 +218,25 @@ public class TypeDefense extends Application {
     }
 
 
-    // ゲームのアニメーションを管理するメソッド
-    private void startGameLoop() {
-        timer = new Timer();
-
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-               Platform.runLater(() -> {
-                   update();   // ゲームの状態を更新する
-                   draw();     // ゲームの描画を行う
-               });
-            }
-        }, 0, 33); // 0秒後に開始して、33ミリ秒ごとにrun()を実行する。
-    }
-
     // ゲームの状態を更新するメソッド
     private void update() {
          // 敵を出すかどうかチェックする
-         spawnCounter++; //カウンタを1増やす
-
+         spawnCounter++; 
          if (spawnCounter >= spawnRate) {
             // カウンタが設定値を超えたら敵を出す
             spawnEnemy();
             spawnCounter = 0; // カウンタをリセットする
          }
 
+         List<WordEnemy> currentEnemies = new ArrayList<>(enemies);
          // リストにいるすべての敵に対して「動け」と命令する
-         for (WordEnemy e : enemies) {
+         for (WordEnemy e : currentEnemies) {
             e.move(2.0);  // 2.0ピクセルずつ下に移動
+
+            if (e.y > HEIGHT) {
+                gameOver();
+                break;
+            }
          }
     }
 
@@ -297,6 +287,8 @@ public class TypeDefense extends Application {
         }
 
     }
+
+    
 
     @Override
     public void stop() throws Exception {
