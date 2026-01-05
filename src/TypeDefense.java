@@ -50,7 +50,7 @@ public class TypeDefense extends Application {
     private TextField nameField; // 名前入力欄
     private Button startButton;  // スタートボタン
     private RadioButton easyBtn, hardBtn;  // 難易度選択
-    private boolean isRunning false; // ゲーム中であるかどうか
+    private boolean isRunning = false; // ゲーム中であるかどうか
     
     public static void main(String[] args) {
         launch(args);
@@ -92,7 +92,7 @@ public class TypeDefense extends Application {
 
         // スタートボタン
         startButton = new Button("ゲーム開始");
-        startButton.setOnAction(e -> gameStart()) // 押したらgameStart()を呼ぶ
+        startButton.setOnAction(e -> gameStart()); // 押したらgameStart()を呼ぶ
 
         // 全部横に並べる
         controls.getChildren().addAll(nameLabel, nameField, easyBtn, hardBtn, startButton);
@@ -127,7 +127,6 @@ public class TypeDefense extends Application {
 
         drawTitleScreen(); // 最初の画面描画
         enemies.clear();  // ゲーム開始時は敵は0体からスタートする
-        startGameLoop();// ゲームのループを開始する
     }
 
     // ゲーム開始処理
@@ -288,7 +287,16 @@ public class TypeDefense extends Application {
 
     }
 
-    
+    // 待機画面の描画
+    private void drawTitleScreen() {
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0, 0, WIDTH, HEIGHT);
+        gc.setFill(Color.WHITE);
+        gc.setFont(new Font("Arial", 30));
+        gc.fillText("TypeDefense", 200, 200);
+        gc.setFont(new Font("Arial", 20));
+        gc.fillText("Please enter name & Press Start", 150, 250);
+    }
 
     @Override
     public void stop() throws Exception {
