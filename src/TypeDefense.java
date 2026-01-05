@@ -169,9 +169,33 @@ public class TypeDefense extends Application {
         canvas.requestFocus();
     }
 
-    private void processInput(KeyCode code) {
-        String key = code.toString();   // 押されたキー (例: "A")
+    // ゲーム終了処理
+    private void gameOver() {
+        isRunning = false;
+        if (timer != null) timer.cancel();
 
+        nameField.setDisable(false);
+        easyBtn.setDisable(false);
+        hardBtn.setDisable(false);
+        startButton.setDisable(false);
+
+        // 結果表示
+        String name = nameField.getText();
+        if (name.isEmpty()) name = "名無し";
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("ゲームオーバー");
+        alert.setHeaderText("お疲れさまでした！");
+        alert.setContentText(name + "さんのスコアは" + score + "点です！");
+        alert.show();
+
+        drawTitleScreen();
+    }
+
+    private void processInput(KeyCode code) {
+        if (!isRunning) return;  // ゲーム中じゃなければ無視
+
+        String key = code.toString();   // 押されたキー (例: "A")
         // 「一番下にいる(yが大きい)」かつ「入力された文字で始まる」敵を探す
         WordEnemy target = null;
         double maxY = -1000;
