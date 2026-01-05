@@ -124,9 +124,49 @@ public class TypeDefense extends Application {
             // もし画像がなくてもエラーで止まらないようにする
             System.out.println("画像読み込みエラー: img/UFO.pngが見つかりません");
         }
-        
+
+        drawTitleScreen(); // 最初の画面描画
         enemies.clear();  // ゲーム開始時は敵は0体からスタートする
         startGameLoop();// ゲームのループを開始する
+    }
+
+    // ゲーム開始処理
+    private void gameStart() {
+        if (isRunning) return;  // すでに動いていたら何もしない
+
+        // 初期化処理
+        enemies.clear();
+        score = 0;
+        spawnCounter = 0;
+        isRunning = true;
+
+        // UIの制御
+        nameField.setDisable(true);
+        easyBtn.setDisable(true);
+        hardBtn.setDisable(true);
+        startButton.setDisable(true);
+
+        // 難易度設定
+        if (easyBtn.isSelected()) {
+            spawnRate = 60;  // Easy: 2秒に1体
+        } else {
+            spawnRate = 30;  // Hard: 1秒に1体
+        }
+        
+        // タイマースタート
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(() -> {
+                    update();
+                    draw();
+                });
+            }
+        }, 0, 33);
+
+        // フォーカスをキャンバスに戻す(ボタンを押した後もキー入力を受け付けるため)
+        canvas.requestFocus();
     }
 
     private void processInput(KeyCode code) {
