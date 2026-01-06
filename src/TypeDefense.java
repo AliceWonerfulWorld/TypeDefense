@@ -262,19 +262,21 @@ public class TypeDefense extends Application {
             }
     }
 
+    // ダメージ処理
+    private void damagePlayer() {
+        currentLife--;  // ライフを減らす
+        double progress = (double)currentLife / maxLife;
+        lifeBar.setProgress(progress);
+        System.out.println("ダメージ！ Life: " + currentLife);
+    }
+
     // ランダムな敵を生成するメソッド
     private void spawnEnemy() {
        Random rand = new Random();
-
-       // 単語リストからランダムに1つ選ぶ
        int index = rand.nextInt(WORDS.length); // 0 ～ (単語数-1)の乱数
        String word = WORDS[index];
-
-       // 出現位置(X座標)もランダムにする
-       double x = rand.nextInt(WIDTH - 100) + 50; 
-
-       // リストに追加する (Y座標は画面一番上の0)
-       enemies.add(new WordEnemy(word, x, 0));
+       double x = rand.nextInt(WIDTH - 100) + 50;  // 出現位置(X座標)もランダムにする
+       enemies.add(new WordEnemy(word, x, 0)); // リストに追加する (Y座標は画面一番上の0)
     }
 
     // ゲームの描画を行うメソッド
@@ -282,6 +284,10 @@ public class TypeDefense extends Application {
         // 画面を黒で塗りつぶしてリセットする (描画の前に必ず行う)
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, WIDTH, HEIGHT);
+
+        // 星のエフェクト
+        gc.setFill(Color.WHITE);
+        if (Math.random() < 0.1) gc.fillOval(Math.random()*WIDTH, Math.random()*HEIGHT, 2, 2);
 
         // 敵を描画する
         gc.setFill(Color.WHITE);                // 文字の色は白
