@@ -322,6 +322,21 @@ public class TypeDefense extends Application {
         gc.fillText("TYPE DEFENSE", 100, 200);
 
         gc.restore();  
+
+        // サブタイトル
+        gc.setFill(Color.LIGHTGRAY);
+        gc.setFont(Font.font("Consolas", 16));
+        gc.fillText("Target the dropping words!", 100, 240);
+
+        // 操作説明
+        gc.setFill(Color.YELLOW);
+        gc.setFont(Font.font("Arial", 20));
+        gc.fillText("Enter Name & Press Start Button", 140 400);
+
+        // UFO画像の表示
+        if (enemyImage != null && !enemyImage.isError()) {
+            gc.drawImage(enemyImage, 260, 280, 80, 80);  
+        }
     }
 
     @Override
