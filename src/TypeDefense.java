@@ -56,6 +56,10 @@ public class TypeDefense extends Application {
     private RadioButton easyBtn, hardBtn;  // 難易度選択
     private boolean isRunning = false; // ゲーム中であるかどうか
     
+    private int maxLife = 5;   // 最大ライフ
+    private int currentLife;   // 現在のライフ
+    private ProgressBar lifeBar;  // HPゲージを表示する部品
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -98,8 +102,16 @@ public class TypeDefense extends Application {
         startButton = new Button("ゲーム開始");
         startButton.setOnAction(e -> gameStart()); // 押したらgameStart()を呼ぶ
 
+        // 追加: HPゲージのUI作成
+        Label hpLabel = new Label("HP:");
+        hpLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+
+        lifeBar = new ProgressBar(1.0);
+        lifeBar.setPrefWidth(100);
+        lifeBar.setStyle("-fx-account: red;");
+
         // 全部横に並べる
-        controls.getChildren().addAll(nameLabel, nameField, easyBtn, hardBtn, startButton);
+        controls.getChildren().addAll(nameLabel, nameField, easyBtn, hardBtn, startButton, hpLabel, lifeBar);
 
         // メニューと操作パネルを縦に積む
         topContainer.getChildren().addAll(menuBar, controls);
@@ -110,7 +122,7 @@ public class TypeDefense extends Application {
         root.setCenter(canvas);               // 描画領域を画面中央に配置する
 
         // ウィンドウの表示設定
-        Scene scene = new Scene(root, WIDTH, HEIGHT);
+        Scene scene = new Scene(root, WIDTH, HEIGHT + 50);
 
         // キーボードが押されたらprocessInputメソッドを呼ぶ
         scene.setOnKeyPressed(e -> processInput(e.getCode()));
@@ -142,6 +154,9 @@ public class TypeDefense extends Application {
         score = 0;
         spawnCounter = 0;
         isRunning = true;
+
+        currentLife = maxLife;
+        lifeBar.setProgress(1.0);
 
         // UIの制御
         nameField.setDisable(true);
@@ -237,10 +252,14 @@ public class TypeDefense extends Application {
             e.move(2.0);  // 2.0ピクセルずつ下に移動
 
             if (e.y > HEIGHT) {
-                gameOver();
-                break;
+                enemies.remove(e);  // 即終了せず、その敵だけ消す
+                damagePlayer();     // ダメージ処理を呼ぶ
             }
          }
+
+         if (currentLife <= 0) {
+                gameOver();
+            }
     }
 
     // ランダムな敵を生成するメソッド
