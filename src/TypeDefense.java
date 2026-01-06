@@ -21,7 +21,11 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Random;
-import javafx.scene.effect.DropShadow
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.Stop;
+import javafx.scene.text.FontWeight;
+import javafx.scene.effect.DropShadow;
 
 
 
@@ -331,7 +335,7 @@ public class TypeDefense extends Application {
         // 操作説明
         gc.setFill(Color.YELLOW);
         gc.setFont(Font.font("Arial", 20));
-        gc.fillText("Enter Name & Press Start Button", 140 400);
+        gc.fillText("Enter Name & Press Start Button", 140, 400);
 
         // UFO画像の表示
         if (enemyImage != null && !enemyImage.isError()) {
