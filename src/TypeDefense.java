@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Random;
-
+import javafx.scene.effect.DropShadow
 
 
 
@@ -289,13 +289,39 @@ public class TypeDefense extends Application {
 
     // 待機画面の描画
     private void drawTitleScreen() {
-        gc.setFill(Color.BLACK);
+        RadialGradient bg = new RadialGradient(
+            0, 0, 0.5, 0.5, 1.0, true, CycleMethod.NO_CYCLE,
+            new Stop(0.0, Color.web("#1a2a6c")),
+            new Stop(0.8, Color.BLACK)
+        );
+        gc.setFill(bg);
         gc.fillRect(0, 0, WIDTH, HEIGHT);
+
+        // 星の装飾
         gc.setFill(Color.WHITE);
-        gc.setFont(new Font("Arial", 30));
-        gc.fillText("TypeDefense", 200, 200);
-        gc.setFont(new Font("Arial", 20));
-        gc.fillText("Please enter name & Press Start", 150, 250);
+        Random rand = new Random();
+        for (int i = 0; i < 50; i++) {
+            double x = rand.nextInt(WIDTH);
+            double y = rand.nextInt(HEIGHT);
+            double size = rand.nextDouble() * 2 + 1;
+            gc.fillOval(x, y, size, size);
+        }
+
+        gc.save();  // 現在の設定を保存
+
+        // 影 (光) の設定
+        DropShadow glow = new DropShadow();
+        glow.setColor(Color.CYAN);  // 水色の光
+        glow.setRadius(20);         // 広がり
+        glow.setSpread(0.5);        // 濃さ
+        gc.setEffect(glow);         // エフェクト適用
+
+        // 文字の描画
+        gc.setFill(Color.WHITE);
+        gc.setFont(Font.font("Verdana", FontWeight.BOLD, 50));
+        gc.fillText("TYPE DEFENSE", 100, 200);
+
+        gc.restore();  
     }
 
     @Override
