@@ -60,6 +60,7 @@ public class TypeDefense extends Application {
     private int currentLife;   // 現在のライフ
     private ProgressBar lifeBar;  // HPゲージを表示する部品
 
+
     public static void main(String[] args) {
         launch(args);
     }
