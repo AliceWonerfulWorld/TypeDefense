@@ -56,4 +56,56 @@ public class GameDrawer {
             gc.fillText(e.word, e.x, e.y);
         }
     }
+
+    // タイトル画面の描画
+    public void drawTitle() {
+        double w = canvas.getWidth();
+        double h = canvas.getHeight();
+
+        // 背景グラデーション
+        RadialGradient bg = new RadialGradient(
+            0, 0, 0.5, 0.5, 1.0, true, CycleMethod.NO_CYCLE,
+            new Stop(0.0, Color.web("#1a2a6c")),
+            new Stop(0.8, Color.BLACK)
+        );
+        gc.setFill(bg);
+        gc.fillRect(0, 0, w, h);
+
+        // 星
+        gc.setFill(Color.WHITE);
+        Random rand = new Random();
+        for (int i = 0; i < 50; i++) {
+            gc.fillOval(rand.nextInt((int)w), rand.nextInt((int)h), rand.nextDouble() * 2 + 1, rand.nextDouble() * 2 + 1);
+        }
+
+        // タイトル文字（発光エフェクト）
+        gc.save();
+        DropShadow glow = new DropShadow();
+        glow.setColor(Color.CYAN);
+        glow.setRadius(20);
+        glow.setSpread(0.5);
+        gc.setEffect(glow);
+
+        gc.setFill(Color.WHITE);
+        gc.setFont(Font.font("Verdana", FontWeight.BOLD, 50));
+        // 中央寄せ計算
+        String title = "TYPE DEFENSE";
+        double textWidth = 400; // およその幅
+        gc.fillText(title, (w - textWidth) / 2 + 20, h / 2 - 50);
+        gc.restore();
+
+        // サブタイトルなど
+        gc.setFill(Color.LIGHTGRAY);
+        gc.setFont(Font.font("Consolas", 16));
+        gc.fillText("Target the dropping words!", w / 2 - 120, h / 2);
+
+        gc.setFill(Color.YELLOW);
+        gc.setFont(Font.font("Arial", 20));
+        gc.fillText("Enter Name & Press Start Button", w / 2 - 140, h / 2 + 150);
+
+        // UFO
+        if (enemyImage != null && !enemyImage.isError()) {
+            gc.drawImage(enemyImage, w / 2 - 40, h / 2 + 20, 80, 80);
+        }
+    }
 }
