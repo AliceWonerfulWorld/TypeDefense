@@ -3,10 +3,36 @@ public class GameConstants {
     public static final int INITIAL_WIDTH = 600;
     public static final int INITIAL_HEIGHT = 550;
 
-    // 単語リスト
-    public static final String[] WORDS = {
-        "JAVA", "CLASS", "OBJECT", "METHOD", "PUBLIC", "STATIC",
-        "VOID", "RETURN", "IMPORT", "JAVAFX", "CANVAS", "NODE",
-        "STRING", "INTEGER", "DOUBLE", "BOOLEAN", "SYSTEM", "OUT"
+    // ★工夫: リストを難易度別に分ける
+    
+    // Easyモード用: 短い単語・基本構文 (50個以上)
+    public static final String[] WORDS_EASY = {
+        "INT", "FOR", "IF", "NEW", "TRY", "MAP", "SET", "LIST", 
+        "BYTE", "CHAR", "CASE", "ELSE", "ENUM", "LONG", "NULL", 
+        "THIS", "TRUE", "VOID", "FILE", "PATH", "READ", "CODE",
+        "DATA", "DATE", "TIME", "MATH", "TEXT", "VIEW", "NODE",
+        "MAIN", "ARGS", "BOOL", "LOOP", "SIZE", "SORT", "TREE",
+        "HASH", "HEAP", "STACK", "QUEUE", "DEQUE", "PUSH", "POP",
+        "PEEK", "POLL", "SWAP", "COPY", "CAST", "LOCK", "WAIT",
+        "BIOS", "CPU", "GPU", "RAM", "ROM", "SSD", "HDD", "USB",
+        "LAN", "WAN", "WEB", "HTML", "CSS", "XML", "JSON", "SQL",
+        "GIT", "SVN", "JAR", "WAR", "EAR", "JSP", "API", "SDK"
+    };
+
+    // Hard/Endlessモード用: 長い単語・専門用語 (50個以上)
+    public static final String[] WORDS_HARD = {
+        "ABSTRACT", "ASSERT", "BOOLEAN", "BREAK", "CATCH", "CLASS", 
+        "CONST", "CONTINUE", "DEFAULT", "DOUBLE", "EXTENDS", "FINALLY", 
+        "FLOAT", "GOTO", "IMPLEMENTS", "IMPORT", "INSTANCEOF", "INTERFACE", 
+        "NATIVE", "PACKAGE", "PRIVATE", "PROTECTED", "PUBLIC", "RETURN", 
+        "SHORT", "STATIC", "STRICTFP", "SWITCH", "SYNCHRONIZED", "THROW", 
+        "THROWS", "TRANSIENT", "VOLATILE", "WHILE", "EXCEPTION", "COLLECTION", 
+        "POLYMORPHISM", "INHERITANCE", "ENCAPSULATION", "ABSTRACTION", 
+        "CONSTRUCTOR", "DECLARATION", "DEFINITION", "INITIALIZATION", 
+        "ITERATOR", "OBSERVER", "SINGLETON", "FACTORY", "BUILDER", 
+        "ADAPTER", "STRATEGY", "COMMAND", "COMPOSITE", "DECORATOR",
+        "APPLICATION", "CONTROLLER", "REPOSITORY", "SERVICE", "COMPONENT",
+        "REPOSITORY", "ANNOTATION", "REFLECTION", "SERIALIZABLE", "CLONEABLE",
+        "RUNNABLE", "THREAD", "EXECUTOR", "SEMAPHORE", "LAMBDA", "STREAM"
     };
 }
