@@ -259,12 +259,15 @@ public class TypeDefense extends Application {
         drawer.drawGame(score, currentLife, maxLife, enemies);
     }
 
-    private void spawnEnemy() {
+   private void spawnEnemy() {
         Random rand = new Random();
         String word = GameConstants.WORDS[rand.nextInt(GameConstants.WORDS.length)];
+
         double w = canvas.getWidth();
         double x = rand.nextInt(Math.max(1, (int)w - 100)) + 50;
-        enemies.add(new WordEnemy(word, x, 0));
+
+        int type = (rand.nextInt(10) < 2) ? 1 : 0;
+        enemies.add(new WordEnemy(word, x, 0, type));
     }
 
     private void processInput(KeyCode code) {
@@ -284,7 +287,8 @@ public class TypeDefense extends Application {
         if (target != null) {
             if (!target.damage()) {
                 enemies.remove(target);
-                score += 100;
+                // ★変更: 敵の種類に応じたスコアを加算 (100 or 300)
+                score += target.getScore();
             }
         }
     }

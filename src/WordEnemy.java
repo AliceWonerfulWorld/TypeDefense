@@ -1,28 +1,45 @@
+import javafx.scene.paint.Color;
+
 public class WordEnemy {
+    public String word;
+    public double x;
+    public double y;
+    
+    // 0:通常(Cyan), 1:赤(Red)
+    public int type; 
 
-    // 敵が持っているデータ
-    public String word; // 表示される単語 
-    public double x;    // 横の位置
-    public double y;    // 縦の位置
-
-    // コンストラクタ
-    // new WordEnemy("test", 100, 0)のように書くと、ここの部分が動く
-    public WordEnemy(String word, double x, double y) {
+    // コンストラクタを修正：typeを受け取れるようにする
+    public WordEnemy(String word, double x, double y, int type) {
         this.word = word;
         this.x = x;
         this.y = y;
+        this.type = type;
     }
 
-    // 敵の動きを決めるメソッド
-    public void move(double speed) {
-        this.y += speed; // y座標にスピードの分を足す(画面下方向へ進む)
+    // 移動メソッド
+    public void move(double baseSpeed) {
+        // 赤い敵(type 1)はスピード2倍
+        double multiplier = (type == 1) ? 2.0 : 1.0;
+        this.y += baseSpeed * multiplier;
     }
 
-    //  攻撃を受けたら(キーボードで入力したら)先頭の文字を消去するメソッド
+    // ダメージ処理
     public boolean damage() {
         if (word.length() > 0) {
-            word = word.substring(1);  // 先頭の1文字を削る
+            word = word.substring(1);
         }
-        return word.length() > 0;  // 文字が残っているかどうかでtureかfalseを返す
+        return word.length() > 0;
+    }
+
+    // --- 以下、エラーの原因になっていたメソッドを追加 ---
+
+    // 倒した時のスコアを返すメソッド
+    public int getScore() {
+        return (type == 1) ? 300 : 100;
+    }
+
+    // 表示する色を返すメソッド
+    public Color getColor() {
+        return (type == 1) ? Color.RED : Color.CYAN;
     }
 }

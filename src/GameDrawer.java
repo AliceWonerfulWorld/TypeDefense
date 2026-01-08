@@ -46,18 +46,31 @@ public class GameDrawer {
         drawCyberGrid(w, h);
 
         // 敵の描画
+       // 敵の描画
         for (WordEnemy e : enemies) {
+            // 画像描画 (画像自体はそのまま)
             if (enemyImage != null && !enemyImage.isError()) {
                 gc.drawImage(enemyImage, e.x - 20, e.y - 40, 40, 40);
             } else {
-                gc.setFill(Color.RED);
+                gc.setFill(Color.RED); // 画像がない時の四角
                 gc.fillRect(e.x - 20, e.y - 40, 40, 40);
             }
             
+            // ★変更: 敵のタイプに合わせて色を変える
+            Color enemyColor = e.getColor(); // 赤 or 水色
+
             gc.save();
-            gc.setEffect(new DropShadow(10, Color.CYAN));
-            gc.setFill(Color.WHITE);
+            // 光る影の色を敵に合わせる
+            gc.setEffect(new DropShadow(15, enemyColor)); 
+            
+            // 文字色を白、または敵の色にする
+            // (サイバー風なら、文字自体も少し色づけるとカッコいい)
+            gc.setFill(Color.WHITE); 
             gc.setFont(Font.font("Consolas", FontWeight.BOLD, 20));
+            
+            // 敵の色で文字を書くならこっち↓
+            // gc.setFill(enemyColor); 
+            
             gc.fillText(e.word, e.x, e.y);
             gc.restore();
         }
