@@ -299,15 +299,40 @@ public class TypeDefense extends Application {
         drawer.drawGame(score, currentLife, maxLife, enemies, currentTime, currentMode);
     }
 
-    private void spawnEnemy() {
+private void spawnEnemy() {
         Random rand = new Random();
-        String word = GameConstants.WORDS[rand.nextInt(GameConstants.WORDS.length)];
-        double w = canvas.getWidth();
-        double x = rand.nextInt(Math.max(1, (int)w - 100)) + 50;
         
-        // 赤い敵の出現率 (Endlessならスコアが高いほど出やすくする？)
-        int chance = 2; // 20%
-        if (currentMode == GameMode.ENDLESS && score > 2000) chance = 4; // 40%
+        // ★工夫: モードによって使う単語リストを切り替える
+        String[] targetList;
+        
+        if (currentMode == GameMode.EASY) {
+            // Easyモードなら簡単な単語リスト
+            targetList = GameConstants.WORDS_EASY;
+        } else if (currentMode == GameMode.HARD) {
+            // Hardモードなら難しい単語リスト
+            targetList = GameConstants.WORDS_HARD;
+        } else {
+            // Endlessモードなら...混ぜて使う？ 
+            // 今回は難しい方を使う、またはランダムで決めるなど工夫できます。
+            // ここでは「ランダムでどちらかのリストを選ぶ」ようにしてみます。
+            if (rand.nextBoolean()) {
+                targetList = GameConstants.WORDS_EASY;
+            } else {
+                targetList = GameConstants.WORDS_HARD;
+            }
+        }
+
+        // 選ばれたリストからランダムに1つ単語を選ぶ
+        String word = targetList[rand.nextInt(targetList.length)];
+        
+        double w = canvas.getWidth();
+        // 画面端ギリギリに出ないように調整
+        // 長い単語だとハミ出る可能性があるので、右側の余白を少し多め(150px)に取る
+        double x = rand.nextInt(Math.max(1, (int)w - 150)) + 50;
+        
+        // 赤い敵の出現率
+        int chance = 2; 
+        if (currentMode == GameMode.ENDLESS && score > 2000) chance = 4;
         
         int type = (rand.nextInt(10) < chance) ? 1 : 0;
         enemies.add(new WordEnemy(word, x, 0, type));
