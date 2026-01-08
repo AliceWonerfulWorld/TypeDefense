@@ -22,6 +22,7 @@ public class GameManager {
     private int maxLife = 5;
     private int currentLife;
     private boolean isRunning = false;
+    private boolean isPaused = false;
     
     // 時間管理
     private double currentTime;
@@ -88,6 +89,8 @@ public class GameManager {
      * ゲームの更新処理
      */
     private void update() {
+        if (isPaused) return;
+        
         updateTime();
         updateSpawn();
         updateEnemies();
@@ -246,5 +249,26 @@ public class GameManager {
     
     public boolean isTimeUp() {
         return currentMode != TypeDefense.GameMode.ENDLESS && currentTime <= 0;
+    }
+    
+    /**
+     * ゲームを一時停止
+     */
+    public void pauseGame() {
+        isPaused = true;
+    }
+    
+    /**
+     * ゲームを再開
+     */
+    public void resumeGame() {
+        isPaused = false;
+    }
+    
+    /**
+     * 一時停止中かどうか
+     */
+    public boolean isPaused() {
+        return isPaused;
     }
 }

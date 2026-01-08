@@ -55,11 +55,13 @@ public class TypeDefense extends Application {
         root.getChildren().add(titleButton);
         root.getChildren().add(uiManager.createStartOverlay());
         root.getChildren().add(uiManager.createGameOverOverlay());
+        root.getChildren().add(uiManager.createPauseOverlay());
 
         // コールバックの設定
         uiManager.setOnGameStart(() -> startGame());
         uiManager.setOnRetry(() -> retryGame());
         uiManager.setOnBackToTitle(() -> backToTitle());
+        uiManager.setOnResume(() -> resumeGame());
         gameManager.setOnGameOver(() -> handleGameOver());
 
         // シーンの設定
@@ -93,7 +95,11 @@ public class TypeDefense extends Application {
     
     // リトライ処理
     private void retryGame() {
-        uiManager.hideGameOver();
+        if (gameManager.isPaused()) {
+            uiManager.hidePause();
+        } else {
+            uiManager.hideGameOver();
+        }
         GameMode mode = uiManager.getSelectedMode();
         gameManager.startGame(mode);
         canvas.requestFocus();
@@ -101,12 +107,40 @@ public class TypeDefense extends Application {
     
     // タイトルに戻る処理
     private void backToTitle() {
-        uiManager.hideGameOver();
+        if (gameManager.isPaused()) {
+            gameManager.stopGame();
+            uiManager.hidePause();
+        } else {
+            uiManager.hideGameOver();
+        }
         uiManager.showTitleButton();
         drawer.drawTitle();
     }
+    
+    // ポーズ処理
+    private void pauseGame() {
+        gameManager.pauseGame();
+        uiManager.showPause();
+    }
+    
+    // 再開処理
+    private void resumeGame() {
+        uiManager.hidePause();
+        gameManager.resumeGame();
+        canvas.requestFocus();
+    }
 
     private void processInput(KeyCode code) {
+        // ESCキーでポーズ/再開
+        if (code == KeyCode.ESCAPE) {
+            if (gameManager.isRunning() && !gameManager.isPaused()) {
+                pauseGame();
+            } else if (gameManager.isPaused()) {
+                resumeGame();
+            }
+            return;
+        }
+        
         gameManager.processInput(code.toString());
     }
 

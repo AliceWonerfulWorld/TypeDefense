@@ -13,6 +13,7 @@ public class UIManager {
     private Button titleStartBtn;
     private VBox startOverlay;
     private VBox gameOverOverlay;
+    private VBox pauseOverlay;
     private TextField nameInput;
     private RadioButton easyBtn, hardBtn, endlessBtn;
     private Label messageLabel;
@@ -23,6 +24,7 @@ public class UIManager {
     private Runnable onGameStart;
     private Runnable onRetry;
     private Runnable onBackToTitle;
+    private Runnable onResume;
     
     /**
      * タイトルボタンを作成
@@ -338,5 +340,91 @@ public class UIManager {
     
     public void setOnBackToTitle(Runnable callback) {
         this.onBackToTitle = callback;
+    }
+    
+    /**
+     * ポーズメニューを作成
+     */
+    public VBox createPauseOverlay() {
+        pauseOverlay = new VBox(20);
+        pauseOverlay.setAlignment(Pos.CENTER);
+        pauseOverlay.setMaxSize(400, 350);
+        pauseOverlay.setPadding(new Insets(30));
+        
+        pauseOverlay.setStyle(
+            "-fx-background-color: rgba(0, 20, 40, 0.95); -fx-border-color: yellow; -fx-border-width: 3px; " +
+            "-fx-background-radius: 15; -fx-border-radius: 15; " +
+            "-fx-effect: dropshadow(three-pass-box, yellow, 25, 0.6, 0, 0);"
+        );
+        
+        // タイトル
+        Label titleLabel = new Label("PAUSED");
+        titleLabel.setStyle("-fx-text-fill: yellow; -fx-font-size: 36px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
+        
+        // ボタンコンテナ
+        VBox buttonBox = new VBox(15);
+        buttonBox.setAlignment(Pos.CENTER);
+        
+        // 続けるボタン
+        Button resumeBtn = createStyledButton("RESUME", "rgba(0, 255, 0, 0.2)", "lime");
+        resumeBtn.setPrefWidth(250);
+        resumeBtn.setOnAction(e -> {
+            if (onResume != null) {
+                onResume.run();
+            }
+        });
+        
+        // リスタートボタン
+        Button restartBtn = createStyledButton("RESTART", "rgba(0, 255, 255, 0.2)", "cyan");
+        restartBtn.setPrefWidth(250);
+        restartBtn.setOnAction(e -> {
+            if (onRetry != null) {
+                onRetry.run();
+            }
+        });
+        
+        // タイトルに戻るボタン
+        Button titleBtn = createStyledButton("BACK TO TITLE", "rgba(255, 165, 0, 0.2)", "orange");
+        titleBtn.setPrefWidth(250);
+        titleBtn.setOnAction(e -> {
+            if (onBackToTitle != null) {
+                onBackToTitle.run();
+            }
+        });
+        
+        buttonBox.getChildren().addAll(resumeBtn, restartBtn, titleBtn);
+        
+        pauseOverlay.getChildren().addAll(titleLabel, buttonBox);
+        pauseOverlay.setVisible(false);
+        
+        return pauseOverlay;
+    }
+    
+    /**
+     * ポーズメニューを表示
+     */
+    public void showPause() {
+        pauseOverlay.setVisible(true);
+    }
+    
+    /**
+     * ポーズメニューを非表示
+     */
+    public void hidePause() {
+        pauseOverlay.setVisible(false);
+    }
+    
+    /**
+     * ポーズ中かどうか
+     */
+    public boolean isPauseVisible() {
+        return pauseOverlay.isVisible();
+    }
+    
+    /**
+     * 続けるコールバックを設定
+     */
+    public void setOnResume(Runnable callback) {
+        this.onResume = callback;
     }
 }
