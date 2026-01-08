@@ -6,10 +6,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyCode;
 
-/**
- * TypeDefense - メインアプリケーションクラス
- * 各マネージャークラスを統合し、ゲームを起動
- */
+
 public class TypeDefense extends Application {
 
     // モード定義
@@ -52,9 +49,12 @@ public class TypeDefense extends Application {
         // UI要素の作成
         root.getChildren().add(uiManager.createTitleButton());
         root.getChildren().add(uiManager.createStartOverlay());
+        root.getChildren().add(uiManager.createGameOverOverlay());
 
         // コールバックの設定
         uiManager.setOnGameStart(() -> startGame());
+        uiManager.setOnRetry(() -> retryGame());
+        uiManager.setOnBackToTitle(() -> backToTitle());
         gameManager.setOnGameOver(() -> handleGameOver());
 
         // シーンの設定
@@ -62,15 +62,14 @@ public class TypeDefense extends Application {
         scene.setOnKeyPressed(e -> processInput(e.getCode()));
 
         stage.setScene(scene);
-        stage.setTitle("TypeDefense - Refactored Version");
+        stage.setTitle("TypeDefense");
         stage.show();
 
         Platform.runLater(() -> drawer.drawTitle());
     }
     
-    /**
-     * ゲーム開始処理
-     */
+   
+    // ゲーム開始時処理
     private void startGame() {
         uiManager.hideStartOverlay();
         GameMode mode = uiManager.getSelectedMode();
@@ -78,24 +77,30 @@ public class TypeDefense extends Application {
         canvas.requestFocus();
     }
     
-    /**
-     * ゲームオーバー処理
-     */
+    // ゲームオーバー処理
     private void handleGameOver() {
-        uiManager.showStartOverlay();
+        int finalScore = gameManager.getScore();
+        boolean isTimeUp = gameManager.isTimeUp();
         
-        if (gameManager.isTimeUp()) {
-            uiManager.setLargeMessage("TIME UP!", "lime");
-        } else {
-            uiManager.setLargeMessage("MISSION FAILED", "red");
-        }
-        
+        uiManager.showGameOver(finalScore, isTimeUp);
         drawer.drawTitle();
     }
     
-    /**
-     * キー入力処理
-     */
+    // リトライ処理
+    private void retryGame() {
+        uiManager.hideGameOver();
+        GameMode mode = uiManager.getSelectedMode();
+        gameManager.startGame(mode);
+        canvas.requestFocus();
+    }
+    
+    // タイトルに戻る処理
+    private void backToTitle() {
+        uiManager.hideGameOver();
+        uiManager.showTitleButton();
+        drawer.drawTitle();
+    }
+
     private void processInput(KeyCode code) {
         gameManager.processInput(code.toString());
     }

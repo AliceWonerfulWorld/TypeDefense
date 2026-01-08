@@ -5,10 +5,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.effect.DropShadow;
 
-/**
- * HUD（ヘッドアップディスプレイ）の描画を担当するクラス
- * スコア、時間、HP表示などを管理
- */
+// HUDの描画を担当するクラス
+
 public class HUDDrawer {
     
     private Canvas canvas;
@@ -19,9 +17,7 @@ public class HUDDrawer {
         this.gc = canvas.getGraphicsContext2D();
     }
     
-    /**
-     * HUD全体を描画
-     */
+    //HUD全体を描画
     public void draw(int score, int life, int maxLife, double time, TypeDefense.GameMode mode) {
         double w = canvas.getWidth();
         double h = canvas.getHeight();

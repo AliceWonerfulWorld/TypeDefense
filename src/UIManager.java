@@ -12,19 +12,23 @@ public class UIManager {
     
     private Button titleStartBtn;
     private VBox startOverlay;
+    private VBox gameOverOverlay;
     private TextField nameInput;
     private RadioButton easyBtn, hardBtn, endlessBtn;
     private Label messageLabel;
+    private Label scoreLabel;
     
     // コールバック
     private Runnable onStartButtonClick;
     private Runnable onGameStart;
+    private Runnable onRetry;
+    private Runnable onBackToTitle;
     
     /**
      * タイトルボタンを作成
      */
     public Button createTitleButton() {
-        titleStartBtn = new Button("MISSION START");
+        titleStartBtn = new Button("GAME START");
         
         String btnStyle = 
             "-fx-font-size: 24px; -fx-font-weight: bold; -fx-font-family: 'Consolas'; " +
@@ -93,10 +97,10 @@ public class UIManager {
         VBox nameBox = new VBox(5);
         nameBox.setAlignment(Pos.CENTER_LEFT);
         
-        Label nameLbl = new Label("AGENT NAME:");
+        Label nameLbl = new Label("PLAYER NAME:");
         nameLbl.setStyle("-fx-text-fill: cyan; -fx-font-family: 'Consolas';");
         
-        nameInput = new TextField("Agent");
+        nameInput = new TextField("hogehoge");
         nameInput.setStyle("-fx-background-color: black; -fx-text-fill: white; -fx-border-color: gray; -fx-font-family: 'Consolas';");
         
         nameBox.getChildren().addAll(nameLbl, nameInput);
@@ -110,7 +114,7 @@ public class UIManager {
         VBox diffBox = new VBox(5);
         diffBox.setAlignment(Pos.CENTER_LEFT);
         
-        Label diffLbl = new Label("MISSION MODE:");
+        Label diffLbl = new Label("DIFFICULTY LEVEL:");
         diffLbl.setStyle("-fx-text-fill: cyan; -fx-font-family: 'Consolas';");
         
         HBox radios = new HBox(15);
@@ -139,7 +143,7 @@ public class UIManager {
      * ゲーム開始ボタンを作成
      */
     private Button createGameStartButton() {
-        Button startBtn = new Button("INITIATE MISSION");
+        Button startBtn = new Button("GAME START");
         startBtn.setPrefWidth(200);
         startBtn.setPrefHeight(40);
         
@@ -222,5 +226,117 @@ public class UIManager {
     
     public void showTitleButton() {
         titleStartBtn.setVisible(true);
+    }
+    
+    /**
+     * ゲームオーバーオーバーレイを作成
+     */
+    public VBox createGameOverOverlay() {
+        gameOverOverlay = new VBox(25);
+        gameOverOverlay.setAlignment(Pos.CENTER);
+        gameOverOverlay.setMaxSize(500, 450);
+        gameOverOverlay.setPadding(new Insets(40));
+        
+        gameOverOverlay.setStyle(
+            "-fx-background-color: rgba(0, 20, 40, 0.95); -fx-border-color: cyan; -fx-border-width: 3px; " +
+            "-fx-background-radius: 15; -fx-border-radius: 15; " +
+            "-fx-effect: dropshadow(three-pass-box, cyan, 25, 0.6, 0, 0);"
+        );
+        
+        // メッセージラベル
+        Label titleLabel = new Label("TIME UP!");
+        titleLabel.setStyle("-fx-text-fill: lime; -fx-font-size: 36px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
+        
+        // スコア表示
+        scoreLabel = new Label("FINAL SCORE: 00000");
+        scoreLabel.setStyle("-fx-text-fill: cyan; -fx-font-size: 28px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
+        
+        // ボタンコンテナ
+        HBox buttonBox = new HBox(20);
+        buttonBox.setAlignment(Pos.CENTER);
+        
+        // リトライボタン
+        Button retryBtn = createStyledButton("RETRY", "rgba(0, 255, 0, 0.2)", "lime");
+        retryBtn.setOnAction(e -> {
+            if (onRetry != null) {
+                onRetry.run();
+            }
+        });
+        
+        // タイトルに戻るボタン
+        Button titleBtn = createStyledButton("TITLE", "rgba(255, 165, 0, 0.2)", "orange");
+        titleBtn.setOnAction(e -> {
+            if (onBackToTitle != null) {
+                onBackToTitle.run();
+            }
+        });
+        
+        buttonBox.getChildren().addAll(retryBtn, titleBtn);
+        
+        gameOverOverlay.getChildren().addAll(titleLabel, scoreLabel, buttonBox);
+        gameOverOverlay.setVisible(false);
+        
+        return gameOverOverlay;
+    }
+    
+    /**
+     * スタイル付きボタンを作成
+     */
+    private Button createStyledButton(String text, String bgColor, String textColor) {
+        Button btn = new Button(text);
+        btn.setPrefWidth(180);
+        btn.setPrefHeight(50);
+        
+        String btnStyle = 
+            "-fx-background-color: " + bgColor + "; -fx-text-fill: " + textColor + "; " +
+            "-fx-border-color: " + textColor + "; -fx-border-width: 2px; " +
+            "-fx-font-weight: bold; -fx-font-size: 18px; -fx-cursor: hand; -fx-font-family: 'Consolas';";
+        btn.setStyle(btnStyle);
+        
+        btn.setOnMouseEntered(e -> btn.setStyle(
+            "-fx-background-color: " + textColor + "; -fx-text-fill: black; " +
+            "-fx-border-color: white; -fx-border-width: 2px; " +
+            "-fx-font-weight: bold; -fx-font-size: 18px; -fx-cursor: hand; -fx-font-family: 'Consolas'; " +
+            "-fx-effect: dropshadow(three-pass-box, " + textColor + ", 15, 0.7, 0, 0);"
+        ));
+        btn.setOnMouseExited(e -> btn.setStyle(btnStyle));
+        
+        return btn;
+    }
+    
+    /**
+     * ゲームオーバー画面を表示
+     */
+    public void showGameOver(int score, boolean isTimeUp) {
+        // メッセージを設定
+        Label titleLabel = (Label) gameOverOverlay.getChildren().get(0);
+        if (isTimeUp) {
+            titleLabel.setText("TIME UP!");
+            titleLabel.setStyle("-fx-text-fill: lime; -fx-font-size: 36px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
+        } else {
+            titleLabel.setText("MISSION FAILED");
+            titleLabel.setStyle("-fx-text-fill: red; -fx-font-size: 36px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
+        }
+        
+        // スコアを設定
+        scoreLabel.setText("FINAL SCORE: " + String.format("%05d", score));
+        
+        gameOverOverlay.setVisible(true);
+    }
+    
+    /**
+     * ゲームオーバー画面を非表示
+     */
+    public void hideGameOver() {
+        gameOverOverlay.setVisible(false);
+    }
+    
+    // コールバック設定
+    public void setOnRetry(Runnable callback) {
+        this.onRetry = callback;
+    }
+    
+    public void setOnBackToTitle(Runnable callback) {
+        this.onBackToTitle = callback;
     }
 }

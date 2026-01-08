@@ -6,10 +6,8 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * ゲームのメインロジックを管理するクラス
- * 敵のスポーン、更新、スコア・ライフ管理を担当
- */
+// 敵のスポーン、更新、スコア・ライフ管理を担当
+
 public class GameManager {
     
     private Canvas canvas;
@@ -37,16 +35,12 @@ public class GameManager {
         this.drawer = drawer;
     }
     
-    /**
-     * ゲームオーバー時のコールバックを設定
-     */
+  
     public void setOnGameOver(Runnable callback) {
         this.onGameOver = callback;
     }
     
-    /**
-     * ゲームを開始
-     */
+    
     public void startGame(TypeDefense.GameMode mode) {
         if (isRunning) return;
         
@@ -206,9 +200,7 @@ public class GameManager {
         enemies.add(new WordEnemy(word, x, 0, type));
     }
     
-    /**
-     * 入力処理
-     */
+
     public void processInput(String key) {
         if (!isRunning) return;
         
@@ -230,9 +222,8 @@ public class GameManager {
         }
     }
     
-    /**
-     * ゲームオーバー処理
-     */
+    // ゲームオーバー処理
+     
     private void gameOver(boolean isTimeUp) {
         stopGame();
         if (onGameOver != null) {
