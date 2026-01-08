@@ -62,6 +62,8 @@ public class GameDrawer {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
 
+        if (w <= 0 || h <= 0) return;
+
         // 背景グラデーション
         RadialGradient bg = new RadialGradient(
             0, 0, 0.5, 0.5, 1.0, true, CycleMethod.NO_CYCLE,

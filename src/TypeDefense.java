@@ -18,38 +18,27 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Random;
 
-
 public class TypeDefense extends Application {
 
-    // 画面サイズ
-    private static final int WIDTH = 600;
-    private static final int HEIGHT = 500;
-
-    private static final String[] WORDS = {
-        "JAVA","CLASS","OBJECT","METHOD","PUBLIC","STATIC",
-        "VOID","RETURN","IMPORT","JAVAFX","CANVAS","NODE",
-        "STRING","INTEGER","DOUBLE","BOOLEAN","SYSTEM","OUT"
-    };
-
-    private Canvas canvas;       // 描画領域
-    private GraphicsContext gc;  // 描画用の筆
-    private Timer timer;         // タイマー
-    private List<WordEnemy> enemies = new ArrayList<>(); // 敵の管理用のリスト
-    private int score = 0;// スコアを記録するための変数
-    private int spawnCounter = 0; // 時間をカウントする
-    private int spawnRate = 60;   // 何カウントごとに敵を出すか
-    private Image enemyImage;  // 敵の画像データを入れるための変数
+    private Canvas canvas;
+    private GameDrawer drawer; // ★描画担当クラス
+    private Timer timer;
+    
+    private List<WordEnemy> enemies = new ArrayList<>();
+    private int score = 0;
+    private int spawnCounter = 0;
+    private int spawnRate = 60;
 
     // UI部品
-    private TextField nameField; // 名前入力欄
-    private Button startButton;  // スタートボタン
-    private RadioButton easyBtn, hardBtn;  // 難易度選択
-    private boolean isRunning = false; // ゲーム中であるかどうか
+    private TextField nameField;
+    private Button startButton;
+    private RadioButton easyBtn, hardBtn;
+    private ProgressBar lifeBar;
+    private VBox topContainer;
     
-    private int maxLife = 5;   // 最大ライフ
-    private int currentLife;   // 現在のライフ
-    private ProgressBar lifeBar;  // HPゲージを表示する部品
-
+    private boolean isRunning = false;
+    private int maxLife = 5;
+    private int currentLife;
 
     public static void main(String[] args) {
         launch(args);
@@ -57,155 +46,168 @@ public class TypeDefense extends Application {
 
     @Override
     public void start(Stage stage) {
-        BorderPane root = new BorderPane();   // レイアウトの部品
+        BorderPane root = new BorderPane();
 
-        VBox topContainer = new VBox();
+        // --- UIの構築 ---
+        topContainer = new VBox();
+        MenuBar menuBar = createMenuBar();
+        HBox controls = createControlPanel();
+        
+        topContainer.getChildren().addAll(menuBar, controls);
+        root.setTop(topContainer);
 
-        // メニューバー
+        // --- キャンバスの構築 ---
+        // サイズは GameConstants から取得
+        canvas = new Canvas(GameConstants.INITIAL_WIDTH, GameConstants.INITIAL_HEIGHT - 50);
+        root.setCenter(canvas);
+        
+        // リサイズ対応（ウィンドウサイズに合わせてキャンバスを伸縮）
+        canvas.widthProperty().bind(root.widthProperty());
+        canvas.heightProperty().bind(root.heightProperty().subtract(topContainer.heightProperty()));
+
+        // ★描画担当の作成 (GameDrawerにお任せ)
+        drawer = new GameDrawer(canvas);
+
+        // リサイズ時の再描画
+        canvas.widthProperty().addListener(e -> { if(!isRunning) drawer.drawTitle(); });
+        canvas.heightProperty().addListener(e -> { if(!isRunning) drawer.drawTitle(); });
+
+        Scene scene = new Scene(root, GameConstants.INITIAL_WIDTH, GameConstants.INITIAL_HEIGHT);
+        scene.setOnKeyPressed(e -> processInput(e.getCode()));
+
+        stage.setScene(scene);
+        stage.setTitle("TypeDefense (Refactored)");
+        stage.show();
+
+        // 最初の描画
+        Platform.runLater(() -> drawer.drawTitle());
+    }
+
+    // メニューバー作成（コード整理のため分離）
+    private MenuBar createMenuBar() {
         MenuBar menuBar = new MenuBar();
         Menu fileMenu = new Menu("ファイル");
         MenuItem exitItem = new MenuItem("終了");
         exitItem.setOnAction(e -> Platform.exit());
         fileMenu.getItems().add(exitItem);
         menuBar.getMenus().add(fileMenu);
+        return menuBar;
+    }
 
-        // 操作パネル
-        HBox controls = new HBox(10);  // 部品の間隔を10px空ける
-        controls.setPadding(new Insets(10)); // 周りに余白を作る
-        controls.setAlignment(Pos.CENTER_LEFT); // 左寄せ
-        controls.setStyle("-fx-background-color: #eee;"); // 背景を灰色にする
+    // 操作パネル作成（コード整理のため分離）
+    private HBox createControlPanel() {
+        HBox controls = new HBox(10);
+        controls.setPadding(new Insets(10));
+        controls.setAlignment(Pos.CENTER_LEFT);
+        controls.setStyle("-fx-background-color: #eee;");
 
-        // 名前入力
         Label nameLabel = new Label("名前:");
         nameField = new TextField();
         nameField.setPromptText("プレイヤー名");
         nameField.setPrefWidth(100);
 
-        // 難易度選択
-        ToggleGroup group = new ToggleGroup(); // 1つしか選択できなくするためのグループ
+        ToggleGroup group = new ToggleGroup();
         easyBtn = new RadioButton("Easy");
         easyBtn.setToggleGroup(group);
-        easyBtn.setSelected(true);   // 初期配置はEasy
+        easyBtn.setSelected(true);
         hardBtn = new RadioButton("Hard");
         hardBtn.setToggleGroup(group);
 
-        // スタートボタン
         startButton = new Button("ゲーム開始");
-        startButton.setOnAction(e -> gameStart()); // 押したらgameStart()を呼ぶ
+        startButton.setOnAction(e -> gameStart());
 
-        // 追加: HPゲージのUI作成
         Label hpLabel = new Label("HP:");
         hpLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-
         lifeBar = new ProgressBar(1.0);
         lifeBar.setPrefWidth(100);
-        lifeBar.setStyle("-fx-account: red;");
+        lifeBar.setStyle("-fx-accent: red;");
 
-        // 全部横に並べる
         controls.getChildren().addAll(nameLabel, nameField, easyBtn, hardBtn, startButton, hpLabel, lifeBar);
-
-        // メニューと操作パネルを縦に積む
-        topContainer.getChildren().addAll(menuBar, controls);
-        root.setTop(topContainer);
-
-        canvas = new Canvas(WIDTH, HEIGHT);   // 描画領域の作成する
-        gc = canvas.getGraphicsContext2D();   // 描画用の筆を取得する
-        root.setCenter(canvas);               // 描画領域を画面中央に配置する
-
-        // ウィンドウの表示設定
-        Scene scene = new Scene(root, WIDTH, HEIGHT + 50);
-
-        // キーボードが押されたらprocessInputメソッドを呼ぶ
-        scene.setOnKeyPressed(e -> processInput(e.getCode()));
-
-
-        stage.setScene(scene);
-        stage.setTitle("TypeDefense");
-        stage.show(); // ウィンドウを表示する
-
-        // 画像ファイルの読み込み処理
-        try {
-            // 画像ファイルがあるかtryする
-            enemyImage = new Image("file:img/UFO.png");
-        } catch (Exception e) {
-            // もし画像がなくてもエラーで止まらないようにする
-            System.out.println("画像読み込みエラー: img/UFO.pngが見つかりません");
-        }
-
-        drawTitleScreen(); // 最初の画面描画
-        enemies.clear();  // ゲーム開始時は敵は0体からスタートする
+        return controls;
     }
 
-    // ゲーム開始処理
     private void gameStart() {
-        if (isRunning) return;  // すでに動いていたら何もしない
+        if (isRunning) return;
 
-        // 初期化処理
         enemies.clear();
         score = 0;
         spawnCounter = 0;
-        isRunning = true;
-
         currentLife = maxLife;
         lifeBar.setProgress(1.0);
+        isRunning = true;
 
-        // UIの制御
-        nameField.setDisable(true);
-        easyBtn.setDisable(true);
-        hardBtn.setDisable(true);
-        startButton.setDisable(true);
+        setControlsDisabled(true);
 
-        // 難易度設定
-        if (easyBtn.isSelected()) {
-            spawnRate = 60;  // Easy: 2秒に1体
-        } else {
-            spawnRate = 30;  // Hard: 1秒に1体
-        }
-        
-        // タイマースタート
+        spawnRate = easyBtn.isSelected() ? 60 : 30;
+
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Platform.runLater(() -> {
-                    update();
-                    draw();
-                });
+                Platform.runLater(() -> update());
             }
         }, 0, 33);
 
-        // フォーカスをキャンバスに戻す(ボタンを押した後もキー入力を受け付けるため)
         canvas.requestFocus();
     }
 
-    // ゲーム終了処理
     private void gameOver() {
         isRunning = false;
         if (timer != null) timer.cancel();
+        setControlsDisabled(false);
 
-        nameField.setDisable(false);
-        easyBtn.setDisable(false);
-        hardBtn.setDisable(false);
-        startButton.setDisable(false);
-
-        // 結果表示
-        String name = nameField.getText();
-        if (name.isEmpty()) name = "名無し";
-
+        String name = nameField.getText().isEmpty() ? "名無し" : nameField.getText();
+        
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("ゲームオーバー");
         alert.setHeaderText("お疲れさまでした！");
-        alert.setContentText(name + "さんのスコアは" + score + "点です！");
+        alert.setContentText(name + "さんのスコアは " + score + " 点です！");
         alert.show();
 
-        drawTitleScreen();
+        drawer.drawTitle(); // ★描画担当にお願いする
+    }
+
+    private void update() {
+        // 1. スポーン処理
+        spawnCounter++;
+        if (spawnCounter >= spawnRate) {
+            spawnEnemy();
+            spawnCounter = 0;
+        }
+
+        // 2. 移動処理
+        double currentHeight = canvas.getHeight();
+        List<WordEnemy> currentEnemies = new ArrayList<>(enemies);
+        
+        for (WordEnemy e : currentEnemies) {
+            e.move(2.0);
+            if (e.y > currentHeight) {
+                enemies.remove(e);
+                damagePlayer();
+            }
+        }
+
+        if (currentLife <= 0) gameOver();
+
+        // 3. 描画処理 (★ここが超スッキリ！)
+        drawer.drawGame(score, enemies);
+    }
+
+    private void spawnEnemy() {
+        Random rand = new Random();
+        // ★定数クラスから単語リストを使う
+        String word = GameConstants.WORDS[rand.nextInt(GameConstants.WORDS.length)];
+        
+        double w = canvas.getWidth();
+        // 画面幅に応じたランダム位置
+        double x = rand.nextInt(Math.max(1, (int)w - 100)) + 50;
+        enemies.add(new WordEnemy(word, x, 0));
     }
 
     private void processInput(KeyCode code) {
-        if (!isRunning) return;  // ゲーム中じゃなければ無視
-
-        String key = code.toString();   // 押されたキー (例: "A")
-        // 「一番下にいる(yが大きい)」かつ「入力された文字で始まる」敵を探す
+        if (!isRunning) return;
+        String key = code.toString();
+        
         WordEnemy target = null;
         double maxY = -1000;
 
@@ -217,146 +219,23 @@ public class TypeDefense extends Application {
         }
 
         if (target != null) {
-            boolean isAlive = target.damage(); // 文字を1つずつ消す
-            if (!isAlive) {
-                // 全部消えたらリストから削除する
+            if (!target.damage()) {
                 enemies.remove(target);
-                score += 100; // スコア加算
+                score += 100;
             }
         }
     }
 
-
-    // ゲームの状態を更新するメソッド
-    private void update() {
-         // 敵を出すかどうかチェックする
-         spawnCounter++; 
-         if (spawnCounter >= spawnRate) {
-            // カウンタが設定値を超えたら敵を出す
-            spawnEnemy();
-            spawnCounter = 0; // カウンタをリセットする
-         }
-
-         List<WordEnemy> currentEnemies = new ArrayList<>(enemies);
-         // リストにいるすべての敵に対して「動け」と命令する
-         for (WordEnemy e : currentEnemies) {
-            e.move(2.0);  // 2.0ピクセルずつ下に移動
-
-            if (e.y > HEIGHT) {
-                enemies.remove(e);  // 即終了せず、その敵だけ消す
-                damagePlayer();     // ダメージ処理を呼ぶ
-            }
-         }
-
-         if (currentLife <= 0) {
-                gameOver();
-            }
-    }
-
-    // ダメージ処理
     private void damagePlayer() {
-        currentLife--;  // ライフを減らす
-        double progress = (double)currentLife / maxLife;
-        lifeBar.setProgress(progress);
-        System.out.println("ダメージ！ Life: " + currentLife);
+        currentLife--;
+        lifeBar.setProgress((double)currentLife / maxLife);
     }
 
-    // ランダムな敵を生成するメソッド
-    private void spawnEnemy() {
-       Random rand = new Random();
-       int index = rand.nextInt(WORDS.length); // 0 ～ (単語数-1)の乱数
-       String word = WORDS[index];
-       double x = rand.nextInt(WIDTH - 100) + 50;  // 出現位置(X座標)もランダムにする
-       enemies.add(new WordEnemy(word, x, 0)); // リストに追加する (Y座標は画面一番上の0)
-    }
-
-    // ゲームの描画を行うメソッド
-    private void draw() {
-        // 画面を黒で塗りつぶしてリセットする (描画の前に必ず行う)
-        gc.setFill(Color.BLACK);
-        gc.fillRect(0, 0, WIDTH, HEIGHT);
-
-        // 星のエフェクト
-        gc.setFill(Color.WHITE);
-        if (Math.random() < 0.1) gc.fillOval(Math.random()*WIDTH, Math.random()*HEIGHT, 2, 2);
-
-        // 敵を描画する
-        gc.setFill(Color.WHITE);                // 文字の色は白
-        gc.setFont(new Font("Consolas", 20));   // フォント設定
-
-        // 左上にスコアを表示する
-        gc.fillText("Score: " + score, 20, 30);
-
-        // リストにいるすべての敵を描画する
-        for (WordEnemy e : enemies) {
-            // 画像があれば描画する
-            if (enemyImage != null && !enemyImage.isError()) {
-                // drawImage(画像, x, y, width, height)
-                // 敵の座標(e.x, e.y)を中心にするためにずらして表示する
-                gc.drawImage(enemyImage, e.x - 20, e.y - 40, 40, 40);
-            } else {
-                // 画像がないときは赤い四角を描く
-                gc.setFill(Color.RED);
-                gc.fillRect(e.x - 20, e.y - 40, 40, 40);
-                gc.setFill(Color.WHITE); // 文字色を白に戻す
-            }
-
-            // 敵(e.word)を横(e.x)、縦(e.y)の場所に描画する
-            gc.fillText(e.word, e.x, e.y);
-        }
-
-    }
-
-    // 待機画面の描画
-    private void drawTitleScreen() {
-        RadialGradient bg = new RadialGradient(
-            0, 0, 0.5, 0.5, 1.0, true, CycleMethod.NO_CYCLE,
-            new Stop(0.0, Color.web("#1a2a6c")),
-            new Stop(0.8, Color.BLACK)
-        );
-        gc.setFill(bg);
-        gc.fillRect(0, 0, WIDTH, HEIGHT);
-
-        // 星の装飾
-        gc.setFill(Color.WHITE);
-        Random rand = new Random();
-        for (int i = 0; i < 50; i++) {
-            double x = rand.nextInt(WIDTH);
-            double y = rand.nextInt(HEIGHT);
-            double size = rand.nextDouble() * 2 + 1;
-            gc.fillOval(x, y, size, size);
-        }
-
-        gc.save();  // 現在の設定を保存
-
-        // 影 (光) の設定
-        DropShadow glow = new DropShadow();
-        glow.setColor(Color.CYAN);  // 水色の光
-        glow.setRadius(20);         // 広がり
-        glow.setSpread(0.5);        // 濃さ
-        gc.setEffect(glow);         // エフェクト適用
-
-        // 文字の描画
-        gc.setFill(Color.WHITE);
-        gc.setFont(Font.font("Verdana", FontWeight.BOLD, 50));
-        gc.fillText("TYPE DEFENSE", 100, 200);
-
-        gc.restore();  
-
-        // サブタイトル
-        gc.setFill(Color.LIGHTGRAY);
-        gc.setFont(Font.font("Consolas", 16));
-        gc.fillText("Target the dropping words!", 100, 240);
-
-        // 操作説明
-        gc.setFill(Color.YELLOW);
-        gc.setFont(Font.font("Arial", 20));
-        gc.fillText("Enter Name & Press Start Button", 140, 400);
-
-        // UFO画像の表示
-        if (enemyImage != null && !enemyImage.isError()) {
-            gc.drawImage(enemyImage, 260, 280, 80, 80);  
-        }
+    private void setControlsDisabled(boolean disable) {
+        nameField.setDisable(disable);
+        easyBtn.setDisable(disable);
+        hardBtn.setDisable(disable);
+        startButton.setDisable(disable);
     }
 
     @Override

@@ -8,5 +8,5 @@ public class GameConstants {
         "JAVA", "CLASS", "OBJECT", "METHOD", "PUBLIC", "STATIC",
         "VOID", "RETURN", "IMPORT", "JAVAFX", "CANVAS", "NODE",
         "STRING", "INTEGER", "DOUBLE", "BOOLEAN", "SYSTEM", "OUT"
-    }
+    };
 }
