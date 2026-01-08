@@ -15,20 +15,21 @@ public class GameDrawer {
     
     private Canvas canvas;
     private GraphicsContext gc;
-    private Image enemyImage;
+    private Image normalImage; 
+    private Image redImage;    
 
     public GameDrawer(Canvas canvas) {
         this.canvas = canvas;
         this.gc = canvas.getGraphicsContext2D();
         
         try {
-            enemyImage = new Image("file:img/UFO.png"); 
+            normalImage = new Image("file:img/UFO.png");      
+            redImage = new Image("file:img/EnemyUFO.png");     
         } catch (Exception e) {
-            System.out.println("画像読み込みエラー");
+            System.out.println("画像読み込みエラー: imgフォルダを確認してください");
         }
     }
 
-    // ★引数追加: currentTime と mode を受け取る
     public void drawGame(int score, int life, int maxLife, List<WordEnemy> enemies, double currentTime, TypeDefense.GameMode mode) {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
@@ -47,10 +48,12 @@ public class GameDrawer {
 
         // 敵描画
         for (WordEnemy e : enemies) {
-            if (enemyImage != null && !enemyImage.isError()) {
-                gc.drawImage(enemyImage, e.x - 20, e.y - 40, 40, 40);
+            Image targetImage = (e.type == 1) ? redImage : normalImage;
+
+            if (targetImage != null && !targetImage.isError()) {
+                gc.drawImage(targetImage, e.x - 20, e.y - 40, 40, 40);
             } else {
-                gc.setFill(Color.RED);
+                gc.setFill(e.getColor());
                 gc.fillRect(e.x - 20, e.y - 40, 40, 40);
             }
             
@@ -74,7 +77,7 @@ public class GameDrawer {
         for (int y = 0; y < h; y += 50) gc.strokeLine(0, y, w, y);
     }
 
-    // ★変更: 時間表示を追加
+    // ★修正: パネルサイズと位置を調整して重なりを解消
     private void drawHUD(double w, double h, int score, int life, int maxLife, double time, TypeDefense.GameMode mode) {
         // --- フレーム ---
         gc.setStroke(Color.CYAN);
@@ -90,31 +93,39 @@ public class GameDrawer {
         gc.strokeLine(w - 10, h - 10, w - 10, h - 10 - len);
 
         // --- 左上: スコアパネル ---
-        drawPanel(15, 15, 200, 40);
+        // 幅を 200 -> 170 に短縮
+        drawPanel(15, 15, 170, 40);
         gc.setFill(Color.CYAN);
         gc.setFont(Font.font("Consolas", FontWeight.BOLD, 20));
         gc.fillText("SCORE: " + String.format("%05d", score), 25, 42);
 
-        // --- 中央上: 時間パネル (新規追加) ---
-        drawPanel(w / 2 - 80, 15, 160, 40);
+        // --- 中央上: 時間パネル ---
+        // 幅を 160 -> 140 に短縮
+        double timePanelW = 140;
+        drawPanel(w / 2 - timePanelW / 2, 15, timePanelW, 40);
+        
         gc.setFill(Color.LIME);
         gc.setFont(Font.font("Consolas", FontWeight.BOLD, 20));
         
         if (mode == TypeDefense.GameMode.ENDLESS) {
-            gc.fillText("∞ ENDLESS", w / 2 - 50, 42);
+            // 文字数が多いのでフォントを少し小さくして枠内に収める
+            gc.setFont(Font.font("Consolas", FontWeight.BOLD, 18));
+            gc.fillText("∞ ENDLESS", w / 2 - 45, 42);
         } else {
-            // 時間を "60.0" のように表示
-            gc.fillText("TIME: " + String.format("%.1f", time), w / 2 - 60, 42);
+            gc.fillText("TIME: " + String.format("%.1f", time), w / 2 - 55, 42);
         }
 
         // --- 右上: HPパネル ---
-        double panelWidth = 220;
+        // 幅を 220 -> 190 に短縮
+        double panelWidth = 190;
         drawPanel(w - panelWidth - 15, 15, panelWidth, 40);
+        
         gc.setFill(Color.WHITE);
         gc.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-        gc.fillText("HP:", w - panelWidth - 5, 42);
+        gc.fillText("HP:", w - panelWidth - 5, 42); // 位置微調整
 
-        double heartStartX = w - panelWidth + 40;
+        // ハートの開始位置を調整
+        double heartStartX = w - panelWidth + 35; 
         double heartY = 42;
         int heartSize = 24;
 
@@ -129,7 +140,8 @@ public class GameDrawer {
                 gc.setFill(Color.GRAY); 
                 gc.setEffect(null);     
             }
-            gc.fillText("♥", heartStartX + (i * 30), heartY);
+            // ハートの間隔を少し詰める (30 -> 28)
+            gc.fillText("♥", heartStartX + (i * 28), heartY);
             gc.restore(); 
         }
     }
@@ -142,7 +154,6 @@ public class GameDrawer {
         gc.strokeRoundRect(x, y, w, h, 10, 10);
     }
 
-    // タイトル画面の描画
     public void drawTitle() {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
@@ -180,8 +191,8 @@ public class GameDrawer {
         gc.setFont(Font.font("Consolas", 16));
         gc.fillText("Target the dropping words!", w / 2 - 120, h / 2);
 
-        if (enemyImage != null && !enemyImage.isError()) {
-            gc.drawImage(enemyImage, w / 2 - 40, h / 2 + 20, 80, 80);
+        if (normalImage != null && !normalImage.isError()) {
+            gc.drawImage(normalImage, w / 2 - 40, h / 2 + 20, 80, 80);
         }
     }
 }
