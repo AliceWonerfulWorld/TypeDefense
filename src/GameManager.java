@@ -51,6 +51,7 @@ public class GameManager {
         spawnCounter = 0;
         currentLife = maxLife;
         isRunning = true;
+        isPaused = false;
         
         // モード別の初期設定
         if (mode == TypeDefense.GameMode.EASY) {
@@ -72,6 +73,9 @@ public class GameManager {
                 Platform.runLater(() -> update());
             }
         }, 0, 33);
+        
+        // 即座に最初のゲーム画面を描画
+        draw();
     }
     
     /**
@@ -79,6 +83,7 @@ public class GameManager {
      */
     public void stopGame() {
         isRunning = false;
+        isPaused = false;
         if (timer != null) {
             timer.cancel();
             timer = null;

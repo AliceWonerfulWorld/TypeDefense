@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.control.Button;
 
 
@@ -66,7 +67,7 @@ public class TypeDefense extends Application {
 
         // シーンの設定
         Scene scene = new Scene(root, GameConstants.INITIAL_WIDTH, GameConstants.INITIAL_HEIGHT);
-        scene.setOnKeyPressed(e -> processInput(e.getCode()));
+        scene.setOnKeyPressed(e -> processInput(e));
 
         stage.setScene(scene);
         stage.setTitle("TypeDefense");
@@ -79,6 +80,7 @@ public class TypeDefense extends Application {
     // ゲーム開始時処理
     private void startGame() {
         uiManager.hideStartOverlay();
+        uiManager.getTitleStartBtn().setVisible(false);
         GameMode mode = uiManager.getSelectedMode();
         gameManager.startGame(mode);
         canvas.requestFocus();
@@ -95,11 +97,17 @@ public class TypeDefense extends Application {
     
     // リトライ処理
     private void retryGame() {
+        // 実行中のゲームを停止してから新しいゲームを開始
+        if (gameManager.isRunning()) {
+            gameManager.stopGame();
+        }
+        
         if (gameManager.isPaused()) {
             uiManager.hidePause();
         } else {
             uiManager.hideGameOver();
         }
+        
         GameMode mode = uiManager.getSelectedMode();
         gameManager.startGame(mode);
         canvas.requestFocus();
@@ -130,7 +138,9 @@ public class TypeDefense extends Application {
         canvas.requestFocus();
     }
 
-    private void processInput(KeyCode code) {
+    private void processInput(KeyEvent event) {
+        KeyCode code = event.getCode();
+        
         // ESCキーでポーズ/再開
         if (code == KeyCode.ESCAPE) {
             if (gameManager.isRunning() && !gameManager.isPaused()) {
@@ -141,7 +151,11 @@ public class TypeDefense extends Application {
             return;
         }
         
-        gameManager.processInput(code.toString());
+        // 実際に押されたキーの文字を取得
+        String text = event.getText().toUpperCase();
+        if (!text.isEmpty()) {
+            gameManager.processInput(text);
+        }
     }
 
     
