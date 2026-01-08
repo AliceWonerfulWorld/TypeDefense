@@ -2,8 +2,6 @@ public class GameConstants {
     // 画面の初期サイズ
     public static final int INITIAL_WIDTH = 600;
     public static final int INITIAL_HEIGHT = 550;
-
-    // ★工夫: リストを難易度別に分ける
     
     // Easyモード用: 短い単語・基本構文 (50個以上)
     public static final String[] WORDS_EASY = {

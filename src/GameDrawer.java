@@ -11,17 +11,30 @@ import javafx.scene.effect.DropShadow;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * ゲーム画面の描画を担当するクラス
+ * 背景、敵、タイトル画面の描画を管理
+ */
 public class GameDrawer {
     
     private Canvas canvas;
     private GraphicsContext gc;
     private Image normalImage; 
-    private Image redImage;    
+    private Image redImage;
+    private HUDDrawer hudDrawer;
 
     public GameDrawer(Canvas canvas) {
         this.canvas = canvas;
         this.gc = canvas.getGraphicsContext2D();
+        this.hudDrawer = new HUDDrawer(canvas);
         
+        loadImages();
+    }
+    
+    /**
+     * 画像を読み込む
+     */
+    private void loadImages() {
         try {
             normalImage = new Image("file:img/UFO.png");      
             redImage = new Image("file:img/EnemyUFO.png");     
@@ -30,12 +43,24 @@ public class GameDrawer {
         }
     }
 
+    /**
+     * ゲーム画面全体を描画
+     */
     public void drawGame(int score, int life, int maxLife, List<WordEnemy> enemies, double currentTime, TypeDefense.GameMode mode) {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
         if (w <= 0 || h <= 0) return;
 
-        // 背景
+        drawBackground(w, h);
+        drawEnemies(enemies);
+        hudDrawer.draw(score, life, maxLife, currentTime, mode);
+    }
+    
+    /**
+     * 背景を描画
+     */
+    private void drawBackground(double w, double h) {
+        // グラデーション背景
         RadialGradient bg = new RadialGradient(
             0, 0, 0.5, 0.5, 1.0, true, CycleMethod.NO_CYCLE,
             new Stop(0.0, Color.web("#0a0a2a")),
@@ -45,134 +70,84 @@ public class GameDrawer {
         gc.fillRect(0, 0, w, h);
 
         drawCyberGrid(w, h);
-
-        // 敵描画
-        for (WordEnemy e : enemies) {
-            Image targetImage = (e.type == 1) ? redImage : normalImage;
-            
-            // UFOを大きく表示 (60x60)
-            double ufoSize = 60;
-            double drawX = e.x - (ufoSize / 2); 
-            double drawY = e.y - ufoSize;       
-
-            if (targetImage != null && !targetImage.isError()) {
-                gc.drawImage(targetImage, drawX, drawY, ufoSize, ufoSize);
-            } else {
-                gc.setFill(e.getColor());
-                gc.fillRect(drawX, drawY, ufoSize, ufoSize);
-            }
-            
-            // 文字を大きく (26px)
-            Color enemyColor = e.getColor();
-            gc.save();
-            gc.setEffect(new DropShadow(15, enemyColor)); 
-            gc.setFill(Color.WHITE); 
-            gc.setFont(Font.font("Consolas", FontWeight.BOLD, 26));
-            
-            double textOffset = e.word.length() * 7; 
-            gc.fillText(e.word, e.x - textOffset, e.y);
-            gc.restore();
-        }
-
-        // HUD描画
-        drawHUD(w, h, score, life, maxLife, currentTime, mode);
     }
-
+    
+    /**
+     * サイバーグリッドを描画
+     */
     private void drawCyberGrid(double w, double h) {
         gc.setStroke(Color.web("#00ffff", 0.1));
         gc.setLineWidth(1);
         for (int x = 0; x < w; x += 50) gc.strokeLine(x, 0, x, h);
         for (int y = 0; y < h; y += 50) gc.strokeLine(0, y, w, y);
     }
-
-    // ★修正: パネルサイズと位置を調整して重なりを解消
-    private void drawHUD(double w, double h, int score, int life, int maxLife, double time, TypeDefense.GameMode mode) {
-        // パネルの基本設定
-        double panelH = 55;
-        double panelY = 15;
-        double fontSize = 24;
-
-        // --- フレーム ---
-        gc.setStroke(Color.CYAN);
-        gc.setLineWidth(3);
-        double len = 40;
-        gc.strokeLine(10, 10, 10 + len, 10);
-        gc.strokeLine(10, 10, 10, 10 + len);
-        gc.strokeLine(w - 10, 10, w - 10 - len, 10);
-        gc.strokeLine(w - 10, 10, w - 10, 10 + len);
-        gc.strokeLine(10, h - 10, 10 + len, h - 10);
-        gc.strokeLine(10, h - 10, 10, h - 10 - len);
-        gc.strokeLine(w - 10, h - 10, w - 10 - len, h - 10);
-        gc.strokeLine(w - 10, h - 10, w - 10, h - 10 - len);
-
-        // --- 左上: スコアパネル ---
-        // 幅を 180 -> 170 に短縮
-        double scorePanelW = 170;
-        drawPanel(15, panelY, scorePanelW, panelH);
-        gc.setFill(Color.CYAN);
-        gc.setFont(Font.font("Consolas", FontWeight.BOLD, fontSize));
-        gc.fillText("SCORE: " + String.format("%05d", score), 25, panelY + 35);
-
-        // --- 中央上: 時間パネル ---
-        // 幅を 160 -> 140 に短縮
-        double timePanelW = 140;
-        drawPanel(w / 2 - timePanelW / 2, panelY, timePanelW, panelH);
+    
+    /**
+     * 敵を描画
+     */
+    private void drawEnemies(List<WordEnemy> enemies) {
+        for (WordEnemy e : enemies) {
+            drawEnemy(e);
+        }
+    }
+    
+    /**
+     * 個別の敵を描画
+     */
+    private void drawEnemy(WordEnemy e) {
+        Image targetImage = (e.type == 1) ? redImage : normalImage;
         
-        gc.setFill(Color.LIME);
-        gc.setFont(Font.font("Consolas", FontWeight.BOLD, fontSize));
+        double ufoSize = 60;
+        double drawX = e.x - (ufoSize / 2); 
+        double drawY = e.y - ufoSize;
         
-        if (mode == TypeDefense.GameMode.ENDLESS) {
-            gc.setFont(Font.font("Consolas", FontWeight.BOLD, 20)); // Endlessは文字長いので少し小さく
-            gc.fillText("∞ ENDLESS", w / 2 - 45, panelY + 35);
+        // UFO画像
+        if (targetImage != null && !targetImage.isError()) {
+            gc.drawImage(targetImage, drawX, drawY, ufoSize, ufoSize);
         } else {
-            gc.fillText("TIME: " + String.format("%.0f", time), w / 2 - 50, panelY + 35);
+            gc.setFill(e.getColor());
+            gc.fillRect(drawX, drawY, ufoSize, ufoSize);
         }
-
-        // --- 右上: HPパネル ---
-        // 幅を 200 -> 190 に短縮
-        double hpPanelW = 190;
-        drawPanel(w - hpPanelW - 15, panelY, hpPanelW, panelH);
         
-        gc.setFill(Color.WHITE);
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 20));
-        gc.fillText("HP:", w - hpPanelW - 5, panelY + 35); 
-
-        // ハートの描画
-        // 開始位置を調整
-        double heartStartX = w - hpPanelW + 35; 
-        double heartY = panelY + 35;
-        int heartSize = 30;
-
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, heartSize));
-
-        for (int i = 0; i < maxLife; i++) {
-            gc.save(); 
-            if (i < life) {
-                gc.setFill(Color.RED); 
-                gc.setEffect(new DropShadow(15, Color.RED)); 
-            } else {
-                gc.setFill(Color.GRAY); 
-                gc.setEffect(null);     
-            }
-            // ハートの間隔を少し詰める (32 -> 28)
-            gc.fillText("♥", heartStartX + (i * 28), heartY);
-            gc.restore(); 
-        }
+        // 単語テキスト
+        drawEnemyText(e);
+    }
+    
+    /**
+     * 敵の単語テキストを描画
+     */
+    private void drawEnemyText(WordEnemy e) {
+        Color enemyColor = e.getColor();
+        gc.save();
+        gc.setEffect(new DropShadow(15, enemyColor)); 
+        gc.setFill(Color.WHITE); 
+        gc.setFont(Font.font("Consolas", FontWeight.BOLD, 26));
+        
+        double textOffset = e.word.length() * 7; 
+        gc.fillText(e.word, e.x - textOffset, e.y);
+        gc.restore();
     }
 
-    private void drawPanel(double x, double y, double w, double h) {
-        gc.setFill(Color.web("#000000", 0.7));
-        gc.fillRoundRect(x, y, w, h, 10, 10);
-        gc.setStroke(Color.WHITE);
-        gc.setLineWidth(1);
-        gc.strokeRoundRect(x, y, w, h, 10, 10);
-    }
-
+    
+    /**
+     * タイトル画面を描画
+     */
     public void drawTitle() {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
         if (w <= 0 || h <= 0) return;
 
+        drawTitleBackground(w, h);
+        drawStars(w, h);
+        drawTitleText(w, h);
+        drawSubText(w, h);
+        drawUFOImage(w, h);
+    }
+    
+    /**
+     * タイトル背景を描画
+     */
+    private void drawTitleBackground(double w, double h) {
         RadialGradient bg = new RadialGradient(
             0, 0, 0.5, 0.5, 1.0, true, CycleMethod.NO_CYCLE,
             new Stop(0.0, Color.web("#1a2a6c")),
@@ -180,13 +155,24 @@ public class GameDrawer {
         );
         gc.setFill(bg);
         gc.fillRect(0, 0, w, h);
-
+    }
+    
+    /**
+     * 星を描画
+     */
+    private void drawStars(double w, double h) {
         gc.setFill(Color.WHITE);
         Random rand = new Random();
         for (int i = 0; i < 50; i++) {
-            gc.fillOval(rand.nextInt((int)w), rand.nextInt((int)h), rand.nextDouble() * 2 + 1, rand.nextDouble() * 2 + 1);
+            gc.fillOval(rand.nextInt((int)w), rand.nextInt((int)h), 
+                       rand.nextDouble() * 2 + 1, rand.nextDouble() * 2 + 1);
         }
-
+    }
+    
+    /**
+     * タイトルテキストを描画
+     */
+    private void drawTitleText(double w, double h) {
         gc.save();
         DropShadow glow = new DropShadow();
         glow.setColor(Color.CYAN);
@@ -200,11 +186,21 @@ public class GameDrawer {
         double textWidth = 400; 
         gc.fillText(title, (w - textWidth) / 2 + 20, h / 2 - 50);
         gc.restore();
-
+    }
+    
+    /**
+     * サブテキストを描画
+     */
+    private void drawSubText(double w, double h) {
         gc.setFill(Color.LIGHTGRAY);
         gc.setFont(Font.font("Consolas", 16));
         gc.fillText("Target the dropping words!", w / 2 - 120, h / 2);
-
+    }
+    
+    /**
+     * UFO画像を描画
+     */
+    private void drawUFOImage(double w, double h) {
         if (normalImage != null && !normalImage.isError()) {
             gc.drawImage(normalImage, w / 2 - 50, h / 2 + 20, 100, 100);
         }
