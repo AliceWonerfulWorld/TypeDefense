@@ -8,7 +8,6 @@ import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.Stop;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.BlendMode;
 import java.util.List;
 import java.util.Random;
 
@@ -29,7 +28,8 @@ public class GameDrawer {
         }
     }
 
-    public void drawGame(int score, int life, int maxLife, List<WordEnemy> enemies) {
+    // ★引数追加: currentTime と mode を受け取る
+    public void drawGame(int score, int life, int maxLife, List<WordEnemy> enemies, double currentTime, TypeDefense.GameMode mode) {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
         if (w <= 0 || h <= 0) return;
@@ -45,38 +45,26 @@ public class GameDrawer {
 
         drawCyberGrid(w, h);
 
-        // 敵の描画
-       // 敵の描画
+        // 敵描画
         for (WordEnemy e : enemies) {
-            // 画像描画 (画像自体はそのまま)
             if (enemyImage != null && !enemyImage.isError()) {
                 gc.drawImage(enemyImage, e.x - 20, e.y - 40, 40, 40);
             } else {
-                gc.setFill(Color.RED); // 画像がない時の四角
+                gc.setFill(Color.RED);
                 gc.fillRect(e.x - 20, e.y - 40, 40, 40);
             }
             
-            // ★変更: 敵のタイプに合わせて色を変える
-            Color enemyColor = e.getColor(); // 赤 or 水色
-
+            Color enemyColor = e.getColor();
             gc.save();
-            // 光る影の色を敵に合わせる
             gc.setEffect(new DropShadow(15, enemyColor)); 
-            
-            // 文字色を白、または敵の色にする
-            // (サイバー風なら、文字自体も少し色づけるとカッコいい)
             gc.setFill(Color.WHITE); 
             gc.setFont(Font.font("Consolas", FontWeight.BOLD, 20));
-            
-            // 敵の色で文字を書くならこっち↓
-            // gc.setFill(enemyColor); 
-            
             gc.fillText(e.word, e.x, e.y);
             gc.restore();
         }
 
         // HUD描画
-        drawHUD(w, h, score, life, maxLife);
+        drawHUD(w, h, score, life, maxLife, currentTime, mode);
     }
 
     private void drawCyberGrid(double w, double h) {
@@ -86,13 +74,12 @@ public class GameDrawer {
         for (int y = 0; y < h; y += 50) gc.strokeLine(0, y, w, y);
     }
 
-    // ★変更: HPバーをやめてハート表示にする
-    private void drawHUD(double w, double h, int score, int life, int maxLife) {
-        // --- フレーム描画 ---
+    // ★変更: 時間表示を追加
+    private void drawHUD(double w, double h, int score, int life, int maxLife, double time, TypeDefense.GameMode mode) {
+        // --- フレーム ---
         gc.setStroke(Color.CYAN);
         gc.setLineWidth(3);
         double len = 30;
-        // 四隅の枠
         gc.strokeLine(10, 10, 10 + len, 10);
         gc.strokeLine(10, 10, 10, 10 + len);
         gc.strokeLine(w - 10, 10, w - 10 - len, 10);
@@ -108,43 +95,45 @@ public class GameDrawer {
         gc.setFont(Font.font("Consolas", FontWeight.BOLD, 20));
         gc.fillText("SCORE: " + String.format("%05d", score), 25, 42);
 
-        // --- 右上: HPパネル (ハート表示) ---
-        double panelWidth = 220; // ハートが入るように少し広げる
-        drawPanel(w - panelWidth - 15, 15, panelWidth, 40);
+        // --- 中央上: 時間パネル (新規追加) ---
+        drawPanel(w / 2 - 80, 15, 160, 40);
+        gc.setFill(Color.LIME);
+        gc.setFont(Font.font("Consolas", FontWeight.BOLD, 20));
         
-        // "HP:" ラベル
+        if (mode == TypeDefense.GameMode.ENDLESS) {
+            gc.fillText("∞ ENDLESS", w / 2 - 50, 42);
+        } else {
+            // 時間を "60.0" のように表示
+            gc.fillText("TIME: " + String.format("%.1f", time), w / 2 - 60, 42);
+        }
+
+        // --- 右上: HPパネル ---
+        double panelWidth = 220;
+        drawPanel(w - panelWidth - 15, 15, panelWidth, 40);
         gc.setFill(Color.WHITE);
         gc.setFont(Font.font("Arial", FontWeight.BOLD, 18));
         gc.fillText("HP:", w - panelWidth - 5, 42);
 
-        // ★ハートの描画ループ
-        double heartStartX = w - panelWidth + 40; // 描き始めのX座標
-        double heartY = 42;                       // Y座標
-        int heartSize = 24;                       // ハートの文字サイズ
+        double heartStartX = w - panelWidth + 40;
+        double heartY = 42;
+        int heartSize = 24;
 
         gc.setFont(Font.font("Arial", FontWeight.BOLD, heartSize));
 
         for (int i = 0; i < maxLife; i++) {
-            gc.save(); // 設定を保存
-            
+            gc.save(); 
             if (i < life) {
-                // 生存している分（赤いハート）
-                gc.setFill(Color.RED); // 赤色
-                gc.setEffect(new DropShadow(15, Color.RED)); // 赤く光らせる！
+                gc.setFill(Color.RED); 
+                gc.setEffect(new DropShadow(15, Color.RED)); 
             } else {
-                // ダメージを受けた分（灰色のハート）
-                gc.setFill(Color.GRAY); // 灰色
-                gc.setEffect(null);     // 光らせない
+                gc.setFill(Color.GRAY); 
+                gc.setEffect(null);     
             }
-
-            // ハートを描画 (間隔を30pxずつ空ける)
             gc.fillText("♥", heartStartX + (i * 30), heartY);
-            
-            gc.restore(); // 設定を戻す
+            gc.restore(); 
         }
     }
 
-    // パネルの下地を描く補助メソッド
     private void drawPanel(double x, double y, double w, double h) {
         gc.setFill(Color.web("#000000", 0.7));
         gc.fillRoundRect(x, y, w, h, 10, 10);
@@ -153,6 +142,7 @@ public class GameDrawer {
         gc.strokeRoundRect(x, y, w, h, 10, 10);
     }
 
+    // タイトル画面の描画
     public void drawTitle() {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
