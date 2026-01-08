@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyCode;
+import javafx.scene.control.Button;
 
 
 public class TypeDefense extends Application {
@@ -47,7 +48,11 @@ public class TypeDefense extends Application {
         });
 
         // UI要素の作成
-        root.getChildren().add(uiManager.createTitleButton());
+        Button titleButton = uiManager.createTitleButton();
+        StackPane.setAlignment(titleButton, javafx.geometry.Pos.CENTER);
+        StackPane.setMargin(titleButton, new javafx.geometry.Insets(250, 0, 0, 0));
+        
+        root.getChildren().add(titleButton);
         root.getChildren().add(uiManager.createStartOverlay());
         root.getChildren().add(uiManager.createGameOverOverlay());
 

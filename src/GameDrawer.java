@@ -140,7 +140,6 @@ public class GameDrawer {
         drawTitleBackground(w, h);
         drawStars(w, h);
         drawTitleText(w, h);
-        drawSubText(w, h);
         drawUFOImage(w, h);
     }
     
@@ -181,10 +180,17 @@ public class GameDrawer {
         gc.setEffect(glow);
 
         gc.setFill(Color.WHITE);
-        gc.setFont(Font.font("Verdana", FontWeight.BOLD, 50));
+        Font font = Font.font("Verdana", FontWeight.BOLD, 50);
+        gc.setFont(font);
         String title = "TYPE DEFENSE";
-        double textWidth = 400; 
-        gc.fillText(title, (w - textWidth) / 2 + 20, h / 2 - 50);
+        
+        // テキストの実際の幅を計算
+        javafx.scene.text.Text text = new javafx.scene.text.Text(title);
+        text.setFont(font);
+        double textWidth = text.getLayoutBounds().getWidth();
+        
+        // 画面中央に配置
+        gc.fillText(title, (w - textWidth) / 2, h / 2 - 100);
         gc.restore();
     }
     
@@ -193,8 +199,16 @@ public class GameDrawer {
      */
     private void drawSubText(double w, double h) {
         gc.setFill(Color.LIGHTGRAY);
-        gc.setFont(Font.font("Consolas", 16));
-        gc.fillText("Target the dropping words!", w / 2 - 120, h / 2);
+        Font font = Font.font("Consolas", 16);
+        gc.setFont(font);
+        String subText = "Target the dropping words!";
+        
+        // テキストの実際の幅を計算
+        javafx.scene.text.Text text = new javafx.scene.text.Text(subText);
+        text.setFont(font);
+        double textWidth = text.getLayoutBounds().getWidth();
+        
+        gc.fillText(subText, (w - textWidth) / 2, h / 2 - 30);
     }
     
     /**
@@ -202,7 +216,8 @@ public class GameDrawer {
      */
     private void drawUFOImage(double w, double h) {
         if (normalImage != null && !normalImage.isError()) {
-            gc.drawImage(normalImage, w / 2 - 50, h / 2 + 20, 100, 100);
+            // UFOを中央に配置（タイトルの下、ボタンの上）
+            gc.drawImage(normalImage, w / 2 - 50, h / 2 - 40, 100, 100);
         }
     }
 }
