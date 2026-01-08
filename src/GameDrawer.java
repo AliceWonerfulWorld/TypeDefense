@@ -24,7 +24,7 @@ public class GameDrawer {
         
         try {
             normalImage = new Image("file:img/UFO.png");      
-            redImage = new Image("file:img/EnemyUFO.png");     
+            redImage = new Image("file:img/UFO_red.png");     
         } catch (Exception e) {
             System.out.println("画像読み込みエラー: imgフォルダを確認してください");
         }
@@ -49,20 +49,32 @@ public class GameDrawer {
         // 敵描画
         for (WordEnemy e : enemies) {
             Image targetImage = (e.type == 1) ? redImage : normalImage;
+            
+            // ★変更: UFOを大きく表示 (40 -> 60)
+            double ufoSize = 60;
+            // 画像の中心を合わせるためのオフセット (60pxの半分は30)
+            // 文字(e.x, e.y)の上に画像を表示したいので、Y座標を少し上にずらす
+            double drawX = e.x - (ufoSize / 2); 
+            double drawY = e.y - ufoSize;       
 
             if (targetImage != null && !targetImage.isError()) {
-                gc.drawImage(targetImage, e.x - 20, e.y - 40, 40, 40);
+                gc.drawImage(targetImage, drawX, drawY, ufoSize, ufoSize);
             } else {
                 gc.setFill(e.getColor());
-                gc.fillRect(e.x - 20, e.y - 40, 40, 40);
+                gc.fillRect(drawX, drawY, ufoSize, ufoSize);
             }
             
+            // ★変更: 文字を大きく (20 -> 26)
             Color enemyColor = e.getColor();
             gc.save();
             gc.setEffect(new DropShadow(15, enemyColor)); 
             gc.setFill(Color.WHITE); 
-            gc.setFont(Font.font("Consolas", FontWeight.BOLD, 20));
-            gc.fillText(e.word, e.x, e.y);
+            gc.setFont(Font.font("Consolas", FontWeight.BOLD, 26));
+            
+            // 文字の位置調整 (真ん中に来るように)
+            // 文字列の長さに応じて少し左にずらす簡易計算
+            double textOffset = e.word.length() * 7; 
+            gc.fillText(e.word, e.x - textOffset, e.y);
             gc.restore();
         }
 
@@ -77,12 +89,16 @@ public class GameDrawer {
         for (int y = 0; y < h; y += 50) gc.strokeLine(0, y, w, y);
     }
 
-    // ★修正: パネルサイズと位置を調整して重なりを解消
     private void drawHUD(double w, double h, int score, int life, int maxLife, double time, TypeDefense.GameMode mode) {
-        // --- フレーム ---
+        // パネルの基本設定
+        double panelH = 55; // ★変更: パネルを縦長に (40 -> 55)
+        double panelY = 15;
+        double fontSize = 24; // ★変更: 文字サイズアップ
+
+        // --- フレーム (四隅) ---
         gc.setStroke(Color.CYAN);
         gc.setLineWidth(3);
-        double len = 30;
+        double len = 40; // フレームも少し大きく
         gc.strokeLine(10, 10, 10 + len, 10);
         gc.strokeLine(10, 10, 10, 10 + len);
         gc.strokeLine(w - 10, 10, w - 10 - len, 10);
@@ -93,41 +109,38 @@ public class GameDrawer {
         gc.strokeLine(w - 10, h - 10, w - 10, h - 10 - len);
 
         // --- 左上: スコアパネル ---
-        // 幅を 200 -> 170 に短縮
-        drawPanel(15, 15, 170, 40);
+        double scorePanelW = 180;
+        drawPanel(15, panelY, scorePanelW, panelH);
         gc.setFill(Color.CYAN);
-        gc.setFont(Font.font("Consolas", FontWeight.BOLD, 20));
-        gc.fillText("SCORE: " + String.format("%05d", score), 25, 42);
+        gc.setFont(Font.font("Consolas", FontWeight.BOLD, fontSize));
+        gc.fillText("SCORE: " + String.format("%05d", score), 25, panelY + 35);
 
         // --- 中央上: 時間パネル ---
-        // 幅を 160 -> 140 に短縮
-        double timePanelW = 140;
-        drawPanel(w / 2 - timePanelW / 2, 15, timePanelW, 40);
+        double timePanelW = 160;
+        drawPanel(w / 2 - timePanelW / 2, panelY, timePanelW, panelH);
         
         gc.setFill(Color.LIME);
-        gc.setFont(Font.font("Consolas", FontWeight.BOLD, 20));
+        gc.setFont(Font.font("Consolas", FontWeight.BOLD, fontSize));
         
         if (mode == TypeDefense.GameMode.ENDLESS) {
-            // 文字数が多いのでフォントを少し小さくして枠内に収める
-            gc.setFont(Font.font("Consolas", FontWeight.BOLD, 18));
-            gc.fillText("∞ ENDLESS", w / 2 - 45, 42);
+            gc.setFont(Font.font("Consolas", FontWeight.BOLD, 20)); // Endlessは文字長いので少し小さく
+            gc.fillText("∞ ENDLESS", w / 2 - 50, panelY + 35);
         } else {
-            gc.fillText("TIME: " + String.format("%.1f", time), w / 2 - 55, 42);
+            gc.fillText("TIME: " + String.format("%.0f", time), w / 2 - 60, panelY + 35);
         }
 
         // --- 右上: HPパネル ---
-        // 幅を 220 -> 190 に短縮
-        double panelWidth = 190;
-        drawPanel(w - panelWidth - 15, 15, panelWidth, 40);
+        double hpPanelW = 200;
+        drawPanel(w - hpPanelW - 15, panelY, hpPanelW, panelH);
         
         gc.setFill(Color.WHITE);
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-        gc.fillText("HP:", w - panelWidth - 5, 42); // 位置微調整
+        gc.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        gc.fillText("HP:", w - hpPanelW - 5, panelY + 35);
 
-        // ハートの開始位置を調整
-        double heartStartX = w - panelWidth + 35; 
-        double heartY = 42;
-        int heartSize = 24;
+        // ハートの描画
+        double heartStartX = w - hpPanelW + 40; 
+        double heartY = panelY + 35;
+        int heartSize = 30; // ★変更: ハートを大きく (24 -> 30)
 
         gc.setFont(Font.font("Arial", FontWeight.BOLD, heartSize));
 
@@ -140,8 +153,8 @@ public class GameDrawer {
                 gc.setFill(Color.GRAY); 
                 gc.setEffect(null);     
             }
-            // ハートの間隔を少し詰める (30 -> 28)
-            gc.fillText("♥", heartStartX + (i * 28), heartY);
+            // 間隔を広げる (28 -> 32)
+            gc.fillText("♥", heartStartX + (i * 32), heartY);
             gc.restore(); 
         }
     }
@@ -191,8 +204,9 @@ public class GameDrawer {
         gc.setFont(Font.font("Consolas", 16));
         gc.fillText("Target the dropping words!", w / 2 - 120, h / 2);
 
+        // タイトル画面のUFOも少し大きく
         if (normalImage != null && !normalImage.isError()) {
-            gc.drawImage(normalImage, w / 2 - 40, h / 2 + 20, 80, 80);
+            gc.drawImage(normalImage, w / 2 - 50, h / 2 + 20, 100, 100);
         }
     }
 }
