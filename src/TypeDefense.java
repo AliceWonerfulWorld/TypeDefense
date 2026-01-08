@@ -2,43 +2,42 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane; // ★変更: 自由なレイアウト用
+import javafx.scene.layout.GridPane;
 import javafx.scene.control.*;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyCode;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
+import javafx.util.Pair; // ★追加: ダイアログの結果受け取り用
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Random;
+import java.util.Optional;
 
 public class TypeDefense extends Application {
 
     private Canvas canvas;
-    private GameDrawer drawer; // ★描画担当クラス
+    private GameDrawer drawer;
     private Timer timer;
-    
     private List<WordEnemy> enemies = new ArrayList<>();
+    
+    // ゲームの状態
     private int score = 0;
     private int spawnCounter = 0;
     private int spawnRate = 60;
-
-    // UI部品
-    private TextField nameField;
-    private Button startButton;
-    private RadioButton easyBtn, hardBtn;
-    private ProgressBar lifeBar;
-    private VBox topContainer;
-    
-    private boolean isRunning = false;
     private int maxLife = 5;
     private int currentLife;
+    private boolean isRunning = false;
+    
+    // プレイヤー設定
+    private String playerName = "Agent";
+    private boolean isEasyMode = true;
+
+    // UI部品
+    private Button titleStartBtn; // タイトル画面の真ん中に出るボタン
 
     public static void main(String[] args) {
         launch(args);
@@ -46,29 +45,37 @@ public class TypeDefense extends Application {
 
     @Override
     public void start(Stage stage) {
-        BorderPane root = new BorderPane();
+        // ★重要: StackPaneを使うと「重ね合わせ」ができる
+        StackPane root = new StackPane();
 
-        // --- UIの構築 ---
-        topContainer = new VBox();
-        MenuBar menuBar = createMenuBar();
-        HBox controls = createControlPanel();
-        
-        topContainer.getChildren().addAll(menuBar, controls);
-        root.setTop(topContainer);
-
-        // --- キャンバスの構築 ---
-        // サイズは GameConstants から取得
-        canvas = new Canvas(GameConstants.INITIAL_WIDTH, GameConstants.INITIAL_HEIGHT - 50);
-        root.setCenter(canvas);
-        
-        // リサイズ対応（ウィンドウサイズに合わせてキャンバスを伸縮）
+        // 1. キャンバス（一番奥）
+        canvas = new Canvas(GameConstants.INITIAL_WIDTH, GameConstants.INITIAL_HEIGHT);
         canvas.widthProperty().bind(root.widthProperty());
-        canvas.heightProperty().bind(root.heightProperty().subtract(topContainer.heightProperty()));
+        canvas.heightProperty().bind(root.heightProperty());
+        root.getChildren().add(canvas);
 
-        // ★描画担当の作成 (GameDrawerにお任せ)
+        // 2. スタートボタン（手前）
+        titleStartBtn = new Button("MISSION START");
+        titleStartBtn.setStyle(
+            "-fx-font-size: 20px; " +
+            "-fx-font-weight: bold; " +
+            "-fx-background-color: rgba(0, 255, 255, 0.3); " + // 半透明の水色
+            "-fx-text-fill: white; " +
+            "-fx-border-color: cyan; " +
+            "-fx-border-width: 2px;"
+        );
+        // マウスが乗った時のエフェクト（CSSみたいに記述できる）
+        titleStartBtn.setOnMouseEntered(e -> titleStartBtn.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-background-color: rgba(0, 255, 255, 0.6); -fx-text-fill: white; -fx-border-color: cyan; -fx-border-width: 2px;"));
+        titleStartBtn.setOnMouseExited(e -> titleStartBtn.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-background-color: rgba(0, 255, 255, 0.3); -fx-text-fill: white; -fx-border-color: cyan; -fx-border-width: 2px;"));
+
+        // ボタンを押したら「設定ダイアログ」を開く
+        titleStartBtn.setOnAction(e -> showStartDialog());
+        root.getChildren().add(titleStartBtn);
+
+        // 描画担当
         drawer = new GameDrawer(canvas);
-
-        // リサイズ時の再描画
+        
+        // リサイズ対応
         canvas.widthProperty().addListener(e -> { if(!isRunning) drawer.drawTitle(); });
         canvas.heightProperty().addListener(e -> { if(!isRunning) drawer.drawTitle(); });
 
@@ -76,69 +83,81 @@ public class TypeDefense extends Application {
         scene.setOnKeyPressed(e -> processInput(e.getCode()));
 
         stage.setScene(scene);
-        stage.setTitle("TypeDefense (Refactored)");
+        stage.setTitle("TypeDefense");
         stage.show();
 
-        // 最初の描画
         Platform.runLater(() -> drawer.drawTitle());
     }
 
-    // メニューバー作成（コード整理のため分離）
-    private MenuBar createMenuBar() {
-        MenuBar menuBar = new MenuBar();
-        Menu fileMenu = new Menu("ファイル");
-        MenuItem exitItem = new MenuItem("終了");
-        exitItem.setOnAction(e -> Platform.exit());
-        fileMenu.getItems().add(exitItem);
-        menuBar.getMenus().add(fileMenu);
-        return menuBar;
-    }
+    // ★新機能: 設定用ダイアログを表示する
+    private void showStartDialog() {
+        // ダイアログの作成
+        Dialog<Pair<String, Boolean>> dialog = new Dialog<>();
+        dialog.setTitle("Mission Setup");
+        dialog.setHeaderText("Configuring Neural Link...\n(名前と難易度を設定してください)");
 
-    // 操作パネル作成（コード整理のため分離）
-    private HBox createControlPanel() {
-        HBox controls = new HBox(10);
-        controls.setPadding(new Insets(10));
-        controls.setAlignment(Pos.CENTER_LEFT);
-        controls.setStyle("-fx-background-color: #eee;");
+        // ボタンの種類
+        ButtonType loginButtonType = new ButtonType("Connect", ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
 
-        Label nameLabel = new Label("名前:");
-        nameField = new TextField();
-        nameField.setPromptText("プレイヤー名");
-        nameField.setPrefWidth(100);
+        // レイアウト（グリッド）
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
 
+        // 入力部品
+        TextField name = new TextField();
+        name.setPromptText("Username");
+        
+        RadioButton easy = new RadioButton("Easy");
+        RadioButton hard = new RadioButton("Hard");
         ToggleGroup group = new ToggleGroup();
-        easyBtn = new RadioButton("Easy");
-        easyBtn.setToggleGroup(group);
-        easyBtn.setSelected(true);
-        hardBtn = new RadioButton("Hard");
-        hardBtn.setToggleGroup(group);
+        easy.setToggleGroup(group);
+        hard.setToggleGroup(group);
+        easy.setSelected(true);
 
-        startButton = new Button("ゲーム開始");
-        startButton.setOnAction(e -> gameStart());
+        grid.add(new Label("Name:"), 0, 0);
+        grid.add(name, 1, 0);
+        grid.add(new Label("Difficulty:"), 0, 1);
+        grid.add(easy, 1, 1);
+        grid.add(hard, 2, 1);
 
-        Label hpLabel = new Label("HP:");
-        hpLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-        lifeBar = new ProgressBar(1.0);
-        lifeBar.setPrefWidth(100);
-        lifeBar.setStyle("-fx-accent: red;");
+        dialog.getDialogPane().setContent(grid);
 
-        controls.getChildren().addAll(nameLabel, nameField, easyBtn, hardBtn, startButton, hpLabel, lifeBar);
-        return controls;
+        // 結果を変換する処理
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == loginButtonType) {
+                return new Pair<>(name.getText(), easy.isSelected());
+            }
+            return null;
+        });
+
+        // 表示して待機
+        Optional<Pair<String, Boolean>> result = dialog.showAndWait();
+        
+        // OKが押されたらゲーム開始
+        result.ifPresent(pair -> {
+            this.playerName = pair.getKey().isEmpty() ? "Agent" : pair.getKey();
+            this.isEasyMode = pair.getValue();
+            gameStart();
+        });
     }
 
     private void gameStart() {
         if (isRunning) return;
 
+        // ボタンを隠す
+        titleStartBtn.setVisible(false);
+
+        // 初期化
         enemies.clear();
         score = 0;
         spawnCounter = 0;
         currentLife = maxLife;
-        lifeBar.setProgress(1.0);
         isRunning = true;
 
-        setControlsDisabled(true);
-
-        spawnRate = easyBtn.isSelected() ? 60 : 30;
+        spawnRate = isEasyMode ? 60 : 30;
 
         timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -154,28 +173,28 @@ public class TypeDefense extends Application {
     private void gameOver() {
         isRunning = false;
         if (timer != null) timer.cancel();
-        setControlsDisabled(false);
-
-        String name = nameField.getText().isEmpty() ? "名無し" : nameField.getText();
         
+        // ボタンを再表示
+        titleStartBtn.setVisible(true);
+
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("ゲームオーバー");
-        alert.setHeaderText("お疲れさまでした！");
-        alert.setContentText(name + "さんのスコアは " + score + " 点です！");
+        alert.setTitle("GAME OVER");
+        alert.setHeaderText("Mission Failed");
+        alert.setContentText("Agent " + playerName + "\nFinal Score: " + score);
         alert.show();
 
-        drawer.drawTitle(); // ★描画担当にお願いする
+        drawer.drawTitle();
     }
 
     private void update() {
-        // 1. スポーン処理
+        // スポーン
         spawnCounter++;
         if (spawnCounter >= spawnRate) {
             spawnEnemy();
             spawnCounter = 0;
         }
 
-        // 2. 移動処理
+        // 移動
         double currentHeight = canvas.getHeight();
         List<WordEnemy> currentEnemies = new ArrayList<>(enemies);
         
@@ -183,23 +202,20 @@ public class TypeDefense extends Application {
             e.move(2.0);
             if (e.y > currentHeight) {
                 enemies.remove(e);
-                damagePlayer();
+                currentLife--; // ダメージ
             }
         }
 
         if (currentLife <= 0) gameOver();
 
-        // 3. 描画処理 (★ここが超スッキリ！)
-        drawer.drawGame(score, enemies);
+        // 描画 (HP情報も渡す)
+        drawer.drawGame(score, currentLife, maxLife, enemies);
     }
 
     private void spawnEnemy() {
         Random rand = new Random();
-        // ★定数クラスから単語リストを使う
         String word = GameConstants.WORDS[rand.nextInt(GameConstants.WORDS.length)];
-        
         double w = canvas.getWidth();
-        // 画面幅に応じたランダム位置
         double x = rand.nextInt(Math.max(1, (int)w - 100)) + 50;
         enemies.add(new WordEnemy(word, x, 0));
     }
@@ -224,18 +240,6 @@ public class TypeDefense extends Application {
                 score += 100;
             }
         }
-    }
-
-    private void damagePlayer() {
-        currentLife--;
-        lifeBar.setProgress((double)currentLife / maxLife);
-    }
-
-    private void setControlsDisabled(boolean disable) {
-        nameField.setDisable(disable);
-        easyBtn.setDisable(disable);
-        hardBtn.setDisable(disable);
-        startButton.setDisable(disable);
     }
 
     @Override
