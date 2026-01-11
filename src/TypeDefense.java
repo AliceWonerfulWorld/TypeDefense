@@ -104,6 +104,7 @@ public class TypeDefense extends Application {
         
         if (gameManager.isPaused()) {
             uiManager.hidePause();
+            gameManager.resumeGame();
         } else {
             uiManager.hideGameOver();
         }

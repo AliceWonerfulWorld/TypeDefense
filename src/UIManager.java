@@ -378,6 +378,7 @@ public class UIManager {
         Button restartBtn = createStyledButton("RESTART", "rgba(0, 255, 255, 0.2)", "cyan");
         restartBtn.setPrefWidth(250);
         restartBtn.setOnAction(e -> {
+            hidePause();  // ★追加: ポーズ画面を閉じる
             if (onRetry != null) {
                 onRetry.run();
             }
@@ -396,22 +397,30 @@ public class UIManager {
         
         pauseOverlay.getChildren().addAll(titleLabel, buttonBox);
         pauseOverlay.setVisible(false);
+        pauseOverlay.setManaged(false);  // ★追加: 初期状態でレイアウトからも除外
         
         return pauseOverlay;
     }
     
-    /**
-     * ポーズメニューを表示
-     */
-    public void showPause() {
-        pauseOverlay.setVisible(true);
-    }
     
     /**
      * ポーズメニューを非表示
      */
     public void hidePause() {
-        pauseOverlay.setVisible(false);
+       if (pauseOverlay != null) {
+          pauseOverlay.setVisible(false);
+          pauseOverlay.setManaged(false);
+       } 
+    }
+
+    /**
+     * ポーズメニューを表示
+     */
+    public void showPause() {
+       if (pauseOverlay != null) {
+         pauseOverlay.setVisible(true);
+         pauseOverlay.setManaged(true);
+       }
     }
     
     /**
