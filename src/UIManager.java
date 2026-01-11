@@ -64,81 +64,63 @@ public class UIManager {
     public VBox createStartOverlay() {
         startOverlay = new VBox(20);
         startOverlay.setAlignment(Pos.CENTER);
-        startOverlay.setMaxSize(450, 400);
-        startOverlay.setPadding(new Insets(30));
+        startOverlay.setMaxSize(500, 400);
+        startOverlay.setPadding(new Insets(40));
         
         startOverlay.setStyle(
-            "-fx-background-color: rgba(0, 20, 40, 0.9); -fx-border-color: cyan; -fx-border-width: 2px; " +
+            "-fx-background-color: rgba(0, 30, 50, 0.95); -fx-border-color: cyan; -fx-border-width: 3px; " +
             "-fx-background-radius: 15; -fx-border-radius: 15; " +
-            "-fx-effect: dropshadow(three-pass-box, cyan, 20, 0.5, 0, 0);"
+            "-fx-effect: dropshadow(three-pass-box, cyan, 25, 0.6, 0, 0);"
         );
         
+        // タイトル
+        Label titleLabel = new Label("SYSTEM READY");
+        titleLabel.setStyle("-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
+        
         // メッセージラベル
-        messageLabel = new Label("SYSTEM READY");
-        messageLabel.setStyle("-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
+        messageLabel = new Label();
+        messageLabel.setStyle("-fx-text-fill: cyan; -fx-font-size: 16px; -fx-font-family: 'Consolas';");
         
-        // 名前入力欄
-        VBox nameBox = createNameInput();
-        
-        // モード選択
+        // モード選択欄（プレイヤー名入力欄を削除）
         VBox modeBox = createModeSelection();
         
-        // スタートボタン
+        // ゲーム開始ボタン
         Button startBtn = createGameStartButton();
         
-        startOverlay.getChildren().addAll(messageLabel, nameBox, modeBox, startBtn);
+        startOverlay.getChildren().addAll(titleLabel, messageLabel, modeBox, startBtn);
         startOverlay.setVisible(false);
         
         return startOverlay;
     }
     
     /**
-     * 名前入力欄を作成
-     */
-    private VBox createNameInput() {
-        VBox nameBox = new VBox(5);
-        nameBox.setAlignment(Pos.CENTER_LEFT);
-        
-        Label nameLbl = new Label("PLAYER NAME:");
-        nameLbl.setStyle("-fx-text-fill: cyan; -fx-font-family: 'Consolas';");
-        
-        nameInput = new TextField("hogehoge");
-        nameInput.setStyle("-fx-background-color: black; -fx-text-fill: white; -fx-border-color: gray; -fx-font-family: 'Consolas';");
-        
-        nameBox.getChildren().addAll(nameLbl, nameInput);
-        return nameBox;
-    }
-    
-    /**
      * モード選択欄を作成
      */
     private VBox createModeSelection() {
-        VBox diffBox = new VBox(5);
-        diffBox.setAlignment(Pos.CENTER_LEFT);
+        VBox modeBox = new VBox(15);
+        modeBox.setAlignment(Pos.CENTER);
         
-        Label diffLbl = new Label("DIFFICULTY LEVEL:");
-        diffLbl.setStyle("-fx-text-fill: cyan; -fx-font-family: 'Consolas';");
+        Label modeLabel = new Label("DIFFICULTY LEVEL:");
+        modeLabel.setStyle("-fx-text-fill: cyan; -fx-font-size: 18px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
         
-        HBox radios = new HBox(15);
-        ToggleGroup group = new ToggleGroup();
+        ToggleGroup modeGroup = new ToggleGroup();
         
         easyBtn = new RadioButton("EASY (60s)");
-        easyBtn.setToggleGroup(group);
+        easyBtn.setToggleGroup(modeGroup);
         easyBtn.setSelected(true);
-        easyBtn.setStyle("-fx-text-fill: white;");
+        easyBtn.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-family: 'Consolas';");
         
         hardBtn = new RadioButton("HARD (60s)");
-        hardBtn.setToggleGroup(group);
-        hardBtn.setStyle("-fx-text-fill: white;");
+        hardBtn.setToggleGroup(modeGroup);
+        hardBtn.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-family: 'Consolas';");
         
         endlessBtn = new RadioButton("ENDLESS");
-        endlessBtn.setToggleGroup(group);
-        endlessBtn.setStyle("-fx-text-fill: magenta; -fx-font-weight: bold;");
+        endlessBtn.setToggleGroup(modeGroup);
+        endlessBtn.setStyle("-fx-text-fill: magenta; -fx-font-size: 16px; -fx-font-family: 'Consolas';");
         
-        radios.getChildren().addAll(easyBtn, hardBtn, endlessBtn);
-        diffBox.getChildren().addAll(diffLbl, radios);
+        modeBox.getChildren().addAll(modeLabel, easyBtn, hardBtn, endlessBtn);
         
-        return diffBox;
+        return modeBox;
     }
     
     /**
@@ -146,19 +128,30 @@ public class UIManager {
      */
     private Button createGameStartButton() {
         Button startBtn = new Button("GAME START");
-        startBtn.setPrefWidth(200);
-        startBtn.setPrefHeight(40);
+        startBtn.setStyle(
+            "-fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Consolas'; " +
+            "-fx-background-color: rgba(0, 255, 255, 0.3); -fx-text-fill: cyan; " +
+            "-fx-border-color: cyan; -fx-border-width: 2px; -fx-cursor: hand; " +
+            "-fx-padding: 10 40 10 40;"
+        );
         
-        String btnStyle = 
-            "-fx-background-color: rgba(0, 255, 255, 0.2); -fx-text-fill: cyan; " +
-            "-fx-border-color: cyan; -fx-font-weight: bold; -fx-font-size: 16px; -fx-cursor: hand;";
-        startBtn.setStyle(btnStyle);
+        startBtn.setOnMouseEntered(e -> {
+            startBtn.setStyle(
+                "-fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Consolas'; " +
+                "-fx-background-color: cyan; -fx-text-fill: black; " +
+                "-fx-border-color: cyan; -fx-border-width: 2px; -fx-cursor: hand; " +
+                "-fx-padding: 10 40 10 40;"
+            );
+        });
         
-        startBtn.setOnMouseEntered(e -> startBtn.setStyle(
-            "-fx-background-color: rgba(0, 255, 255, 0.6); -fx-text-fill: white; -fx-border-color: white; " +
-            "-fx-font-weight: bold; -fx-font-size: 16px; -fx-cursor: hand;"
-        ));
-        startBtn.setOnMouseExited(e -> startBtn.setStyle(btnStyle));
+        startBtn.setOnMouseExited(e -> {
+            startBtn.setStyle(
+                "-fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Consolas'; " +
+                "-fx-background-color: rgba(0, 255, 255, 0.3); -fx-text-fill: cyan; " +
+                "-fx-border-color: cyan; -fx-border-width: 2px; -fx-cursor: hand; " +
+                "-fx-padding: 10 40 10 40;"
+            );
+        });
         
         startBtn.setOnAction(e -> {
             if (onGameStart != null) {
@@ -201,11 +194,6 @@ public class UIManager {
     
     public VBox getStartOverlay() {
         return startOverlay;
-    }
-    
-    public String getPlayerName() {
-        String name = nameInput.getText();
-        return name.isEmpty() ? "Unknown" : name;
     }
     
     public TypeDefense.GameMode getSelectedMode() {

@@ -58,10 +58,10 @@ public class GameManager {
             spawnRate = 60;
             currentTime = 60.0;
         } else if (mode == TypeDefense.GameMode.HARD) {
-            spawnRate = 30;
+            spawnRate = 45;
             currentTime = 60.0;
         } else {
-            spawnRate = 60;
+            spawnRate = 45;
             currentTime = 0.0;
         }
         
