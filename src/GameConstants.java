@@ -3,7 +3,7 @@ public class GameConstants {
     public static final int INITIAL_WIDTH = 600;
     public static final int INITIAL_HEIGHT = 550;
     
-    // Easyモード用: 短い単語・基本構文 (50個以上)
+    // Easy用:
     public static final String[] WORDS_EASY = {
         "INT", "FOR", "IF", "NEW", "TRY", "MAP", "SET", "LIST", 
         "BYTE", "CHAR", "CASE", "ELSE", "ENUM", "LONG", "NULL", 
@@ -17,7 +17,7 @@ public class GameConstants {
         "GIT", "SVN", "JAR", "WAR", "EAR", "JSP", "API", "SDK"
     };
 
-    // Hard/Endlessモード用: 長い単語・専門用語 (50個以上)
+    // Hard/Endless用:
     public static final String[] WORDS_HARD = {
         "ABSTRACT", "ASSERT", "BOOLEAN", "BREAK", "CATCH", "CLASS", 
         "CONST", "CONTINUE", "DEFAULT", "DOUBLE", "EXTENDS", "FINALLY", 

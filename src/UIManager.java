@@ -109,14 +109,18 @@ public class UIManager {
         easyBtn.setToggleGroup(modeGroup);
         easyBtn.setSelected(true);
         easyBtn.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-family: 'Consolas';");
+        easyBtn.setTooltip(new Tooltip("EASYモード:敵の速度がゆっくりで初心者におすすめです。"));
+
         
         hardBtn = new RadioButton("HARD (60s)");
         hardBtn.setToggleGroup(modeGroup);
         hardBtn.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-family: 'Consolas';");
-        
+        hardBtn.setTooltip(new Tooltip("HARDモード:EASYよりも敵のスピードが速く難しいです。"));
+
         endlessBtn = new RadioButton("ENDLESS");
         endlessBtn.setToggleGroup(modeGroup);
         endlessBtn.setStyle("-fx-text-fill: magenta; -fx-font-size: 16px; -fx-font-family: 'Consolas';");
+        endlessBtn.setTooltip(new Tooltip("ENDLESSモード:時間無制限でライフがなくなるまで続きます。徐々に難易度が上がり続けます。"));
         
         modeBox.getChildren().addAll(modeLabel, easyBtn, hardBtn, endlessBtn);
         

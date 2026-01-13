@@ -11,10 +11,9 @@ import javafx.scene.effect.DropShadow;
 import java.util.List;
 import java.util.Random;
 
-/**
- * ゲーム画面の描画を担当するクラス
- * 背景、敵、タイトル画面の描画を管理
- */
+//ゲーム画面の描画を担当する
+//クラス背景、敵、タイトル画面の描画を管理する
+
 public class GameDrawer {
     
     private Canvas canvas;
@@ -31,9 +30,7 @@ public class GameDrawer {
         loadImages();
     }
     
-    /**
-     * 画像を読み込む
-     */
+    // 画像の読み込みを行う。
     private void loadImages() {
         try {
             normalImage = new Image("file:img/UFO.png");      
@@ -43,9 +40,7 @@ public class GameDrawer {
         }
     }
 
-    /**
-     * ゲーム画面全体を描画
-     */
+    // スコアやライフなどの要素を描画する
     public void drawGame(int score, int life, int maxLife, List<WordEnemy> enemies, double currentTime, TypeDefense.GameMode mode) {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
@@ -56,11 +51,8 @@ public class GameDrawer {
         hudDrawer.draw(score, life, maxLife, currentTime, mode);
     }
     
-    /**
-     * 背景を描画
-     */
+    // 背景を描画する
     private void drawBackground(double w, double h) {
-        // グラデーション背景
         RadialGradient bg = new RadialGradient(
             0, 0, 0.5, 0.5, 1.0, true, CycleMethod.NO_CYCLE,
             new Stop(0.0, Color.web("#0a0a2a")),
@@ -72,9 +64,7 @@ public class GameDrawer {
         drawCyberGrid(w, h);
     }
     
-    /**
-     * サイバーグリッドを描画
-     */
+    // SFっぽい背景
     private void drawCyberGrid(double w, double h) {
         gc.setStroke(Color.web("#00ffff", 0.1));
         gc.setLineWidth(1);
@@ -82,18 +72,13 @@ public class GameDrawer {
         for (int y = 0; y < h; y += 50) gc.strokeLine(0, y, w, y);
     }
     
-    /**
-     * 敵を描画
-     */
+    // 敵を描画する
     private void drawEnemies(List<WordEnemy> enemies) {
         for (WordEnemy e : enemies) {
             drawEnemy(e);
         }
     }
-    
-    /**
-     * 個別の敵を描画
-     */
+
     private void drawEnemy(WordEnemy e) {
         Image targetImage = (e.type == 1) ? redImage : normalImage;
         
@@ -101,7 +86,6 @@ public class GameDrawer {
         double drawX = e.x - (ufoSize / 2); 
         double drawY = e.y - ufoSize;
         
-        // UFO画像
         if (targetImage != null && !targetImage.isError()) {
             gc.drawImage(targetImage, drawX, drawY, ufoSize, ufoSize);
         } else {
@@ -109,13 +93,10 @@ public class GameDrawer {
             gc.fillRect(drawX, drawY, ufoSize, ufoSize);
         }
         
-        // 単語テキスト
         drawEnemyText(e);
     }
     
-    /**
-     * 敵の単語テキストを描画
-     */
+    // 敵の単語テキストを描画
     private void drawEnemyText(WordEnemy e) {
         Color enemyColor = e.getColor();
         gc.save();
@@ -129,9 +110,7 @@ public class GameDrawer {
     }
 
     
-    /**
-     * タイトル画面を描画
-     */
+    // タイトル画面を描画する
     public void drawTitle() {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
@@ -143,9 +122,7 @@ public class GameDrawer {
         drawUFOImage(w, h);
     }
     
-    /**
-     * タイトル背景を描画
-     */
+    // タイトル背景を描画
     private void drawTitleBackground(double w, double h) {
         RadialGradient bg = new RadialGradient(
             0, 0, 0.5, 0.5, 1.0, true, CycleMethod.NO_CYCLE,
@@ -156,9 +133,7 @@ public class GameDrawer {
         gc.fillRect(0, 0, w, h);
     }
     
-    /**
-     * 星を描画
-     */
+    // 星を描画
     private void drawStars(double w, double h) {
         gc.setFill(Color.WHITE);
         Random rand = new Random();
@@ -168,9 +143,7 @@ public class GameDrawer {
         }
     }
     
-    /**
-     * タイトルテキストを描画
-     */
+    // タイトルテキストを描画
     private void drawTitleText(double w, double h) {
         gc.save();
         DropShadow glow = new DropShadow();
@@ -194,29 +167,10 @@ public class GameDrawer {
         gc.restore();
     }
     
-    /**
-     * サブテキストを描画
-     */
-    private void drawSubText(double w, double h) {
-        gc.setFill(Color.LIGHTGRAY);
-        Font font = Font.font("Consolas", 16);
-        gc.setFont(font);
-        String subText = "Target the dropping words!";
-        
-        // テキストの実際の幅を計算
-        javafx.scene.text.Text text = new javafx.scene.text.Text(subText);
-        text.setFont(font);
-        double textWidth = text.getLayoutBounds().getWidth();
-        
-        gc.fillText(subText, (w - textWidth) / 2, h / 2 - 30);
-    }
-    
-    /**
-     * UFO画像を描画
-     */
+    // UFO画像を描画
     private void drawUFOImage(double w, double h) {
         if (normalImage != null && !normalImage.isError()) {
-            // UFOを中央に配置（タイトルの下、ボタンの上）
+            // タイトル画面上にUFOを配置する
             gc.drawImage(normalImage, w / 2 - 50, h / 2 - 40, 100, 100);
         }
     }

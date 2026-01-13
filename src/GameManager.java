@@ -7,7 +7,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 // 敵のスポーン、更新、スコア・ライフ管理を担当
-
 public class GameManager {
     
     private Canvas canvas;
@@ -74,13 +73,11 @@ public class GameManager {
             }
         }, 0, 33);
         
-        // 即座に最初のゲーム画面を描画
+        // すぐに最初のゲーム画面を描画
         draw();
     }
     
-    /**
-     * ゲームを停止
-     */
+    // ゲームを停止する
     public void stopGame() {
         isRunning = false;
         isPaused = false;
@@ -90,9 +87,7 @@ public class GameManager {
         }
     }
     
-    /**
-     * ゲームの更新処理
-     */
+    // ゲームの更新処理を行う
     private void update() {
         if (isPaused) return;
         
@@ -103,9 +98,7 @@ public class GameManager {
         draw();
     }
     
-    /**
-     * 時間の更新
-     */
+    // 時間の更新
     private void updateTime() {
         if (currentMode == TypeDefense.GameMode.ENDLESS) {
             currentTime += 0.033;
@@ -123,9 +116,7 @@ public class GameManager {
         }
     }
     
-    /**
-     * 敵のスポーン処理
-     */
+    // 敵のスポーン処理
     private void updateSpawn() {
         spawnCounter++;
         if (spawnCounter >= spawnRate) {
@@ -134,9 +125,7 @@ public class GameManager {
         }
     }
     
-    /**
-     * 敵の移動とライフ管理
-     */
+    // 敵の移動とライフ管理
     private void updateEnemies() {
         double currentHeight = canvas.getHeight();
         List<WordEnemy> currentEnemies = new ArrayList<>(enemies);
@@ -162,25 +151,19 @@ public class GameManager {
         }
     }
     
-    /**
-     * ゲームオーバー判定
-     */
+    // ゲームオーバー判定
     private void checkGameOver() {
         if (currentLife <= 0) {
             gameOver(false);
         }
     }
     
-    /**
-     * 描画処理
-     */
+    // 描画処理
     private void draw() {
         drawer.drawGame(score, currentLife, maxLife, enemies, currentTime, currentMode);
     }
     
-    /**
-     * 敵を生成
-     */
+    // 敵を生成
     private void spawnEnemy() {
         Random rand = new Random();
         
@@ -239,7 +222,7 @@ public class GameManager {
         }
     }
     
-    // Getter
+    // ゲッター
     public boolean isRunning() {
         return isRunning;
     }
@@ -256,23 +239,17 @@ public class GameManager {
         return currentMode != TypeDefense.GameMode.ENDLESS && currentTime <= 0;
     }
     
-    /**
-     * ゲームを一時停止
-     */
+    // ゲームを一時停止
     public void pauseGame() {
         isPaused = true;
     }
     
-    /**
-     * ゲームを再開
-     */
+    // ゲームを再開
     public void resumeGame() {
         isPaused = false;
     }
     
-    /**
-     * 一時停止中かどうか
-     */
+    // 一時停止中かどうか
     public boolean isPaused() {
         return isPaused;
     }
