@@ -52,15 +52,15 @@ public class GameManager {
         isRunning = true;
         isPaused = false;
         
-        // モード別の初期設定
+        // モード別の初期設定（HARD/ENDLESSを少し易しめに）
         if (mode == TypeDefense.GameMode.EASY) {
-            spawnRate = 60;
+            spawnRate = 60;      // ~1.0s
             currentTime = 60.0;
         } else if (mode == TypeDefense.GameMode.HARD) {
-            spawnRate = 45;
+            spawnRate = 54;      // 以前より緩め (~0.9s)
             currentTime = 60.0;
         } else {
-            spawnRate = 45;
+            spawnRate = 60;      // ENDLESS開始はEASY相当
             currentTime = 0.0;
         }
         
@@ -102,11 +102,11 @@ public class GameManager {
     private void updateTime() {
         if (currentMode == TypeDefense.GameMode.ENDLESS) {
             currentTime += 0.033;
-            
-            // 難易度上昇
-            int baseRate = 60;
-            int difficultyLevel = score / 500;
-            spawnRate = Math.max(10, baseRate - (difficultyLevel * 5));
+
+            // 難易度上昇を緩やかに（出現間隔の下限も緩め）
+            int steps = Math.max(0, score) / 600;   // 600点ごとに少しずつ上げる
+            int target = 60 - (steps * 3);          // 1ステップで3フレーム短縮
+            spawnRate = Math.max(42, target);       // 下限42 (~0.7s)
         } else {
             currentTime -= 0.033;
             if (currentTime <= 0) {
@@ -130,15 +130,16 @@ public class GameManager {
         double currentHeight = canvas.getHeight();
         List<WordEnemy> currentEnemies = new ArrayList<>(enemies);
         
-        // スピード計算
+        // スピード計算（ENDLESS上昇を緩やかに、HARD基礎速度も少し下げる）
         double endlessSpeedMultiplier = 1.0;
         if (currentMode == TypeDefense.GameMode.ENDLESS) {
-            endlessSpeedMultiplier = 1.0 + (score / 1000.0) * 0.5;
+            double inc = (score / 1500.0) * 0.3; // スコアに応じて緩やかに
+            endlessSpeedMultiplier = 1.0 + Math.min(0.5, inc); // 最大+0.5まで
         }
-        
+
         double baseSpeed = 2.0;
         if (currentMode == TypeDefense.GameMode.HARD) {
-            baseSpeed = 3.0;
+            baseSpeed = 2.6; // 3.0 -> 2.6
         }
         
         for (WordEnemy e : currentEnemies) {
@@ -181,13 +182,20 @@ public class GameManager {
         double w = canvas.getWidth();
         double x = rand.nextInt(Math.max(1, (int)w - 150)) + 50;
         
-        // 敵タイプ決定
-        int chance = 2;
-        if (currentMode == TypeDefense.GameMode.ENDLESS && score > 2000) {
-            chance = 4;
+        // 敵タイプ決定（赤UFOの出現率を緩め、ENDLESSはゆっくり上昇）
+        double redRate;
+        if (currentMode == TypeDefense.GameMode.EASY) {
+            redRate = 0.08;         // 8%
+        } else if (currentMode == TypeDefense.GameMode.HARD) {
+            redRate = 0.10;         // 10%
+        } else {
+            double base = 0.09;     // 9%から開始
+            double max = 0.14;      // 上限14%
+            double grow = Math.min(max, base + (Math.max(0, score) / 8000.0));
+            redRate = grow;
         }
-        
-        int type = (rand.nextInt(10) < chance) ? 1 : 0;
+
+        int type = (Math.random() < redRate) ? 1 : 0;
         enemies.add(new WordEnemy(word, x, 0, type));
     }
     

@@ -5,10 +5,10 @@ public class WordEnemy {
     public double x;
     public double y;
     
-    // 0:通常(Cyan), 1:赤(Red)
+    // 0:通常UFO, 1:赤UFO
     public int type; 
 
-    // コンストラクタを修正：typeを受け取れるようにする
+
     public WordEnemy(String word, double x, double y, int type) {
         this.word = word;
         this.x = x;
@@ -18,8 +18,8 @@ public class WordEnemy {
 
     // 移動メソッド
     public void move(double baseSpeed) {
-        // 赤い敵(type 1)はスピード2倍
-        double multiplier = (type == 1) ? 2.0 : 1.0;
+        // 赤いUFOは通常UFOの1.35倍の速さ
+        double multiplier = (type == 1) ? 1.35 : 1.0;
         this.y += baseSpeed * multiplier;
     }
 
@@ -30,8 +30,6 @@ public class WordEnemy {
         }
         return word.length() > 0;
     }
-
-    // --- 以下、エラーの原因になっていたメソッドを追加 ---
 
     // 倒した時のスコアを返すメソッド
     public int getScore() {

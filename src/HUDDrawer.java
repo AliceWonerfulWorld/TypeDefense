@@ -17,7 +17,7 @@ public class HUDDrawer {
         this.gc = canvas.getGraphicsContext2D();
     }
     
-    //HUD全体を描画
+    // HUD全体を描画
     public void draw(int score, int life, int maxLife, double time, TypeDefense.GameMode mode) {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
@@ -28,9 +28,7 @@ public class HUDDrawer {
         drawHPPanel(w, life, maxLife);
     }
     
-    /**
-     * 画面四隅のフレームを描画
-     */
+    // 画面四隅のフレームを描画
     private void drawFrame(double w, double h) {
         gc.setStroke(Color.CYAN);
         gc.setLineWidth(3);
@@ -53,9 +51,7 @@ public class HUDDrawer {
         gc.strokeLine(w - 10, h - 10, w - 10, h - 10 - len);
     }
     
-    /**
-     * スコアパネルを描画
-     */
+    // スコアパネルを描画
     private void drawScorePanel(double w, int score) {
         double panelY = 15;
         double panelH = 55;
@@ -68,9 +64,7 @@ public class HUDDrawer {
         gc.fillText("SCORE: " + String.format("%05d", score), 25, panelY + 35);
     }
     
-    /**
-     * 時間パネルを描画
-     */
+    // 時間パネルを描画
     private void drawTimePanel(double w, double time, TypeDefense.GameMode mode) {
         double panelY = 15;
         double panelH = 55;
@@ -89,9 +83,7 @@ public class HUDDrawer {
         }
     }
     
-    /**
-     * HPパネルを描画
-     */
+    // HPパネルを描画
     private void drawHPPanel(double w, int life, int maxLife) {
         double panelY = 15;
         double panelH = 55;
@@ -104,13 +96,10 @@ public class HUDDrawer {
         gc.setFont(Font.font("Arial", FontWeight.BOLD, 20));
         gc.fillText("HP:", w - panelW - 5, panelY + 35);
         
-        // ハート描画
         drawHearts(w - panelW + 35, panelY + 35, life, maxLife);
     }
     
-    /**
-     * ハートを描画
-     */
+    // ハートを描画
     private void drawHearts(double startX, double y, int life, int maxLife) {
         int heartSize = 30;
         gc.setFont(Font.font("Arial", FontWeight.BOLD, heartSize));
@@ -131,9 +120,7 @@ public class HUDDrawer {
         }
     }
     
-    /**
-     * パネルの枠を描画
-     */
+    // パネルの枠を描画
     private void drawPanel(double x, double y, double w, double h) {
         gc.setFill(Color.web("#000000", 0.7));
         gc.fillRoundRect(x, y, w, h, 10, 10);

@@ -4,10 +4,7 @@ import javafx.scene.layout.HBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
-/**
- * UI要素を管理するクラス
- * タイトルボタンとスタートオーバーレイの生成・管理を担当
- */
+// UI要素の管理を行うクラス
 public class UIManager {
     
     private Button titleStartBtn;
@@ -26,9 +23,7 @@ public class UIManager {
     private Runnable onBackToTitle;
     private Runnable onResume;
     
-    /**
-     * タイトルボタンを作成
-     */
+    // タイトルボタンを作成する
     public Button createTitleButton() {
         titleStartBtn = new Button("GAME START");
         
@@ -49,7 +44,6 @@ public class UIManager {
         titleStartBtn.setOnAction(e -> {
             titleStartBtn.setVisible(false);
             startOverlay.setVisible(true);
-            setMessage("SYSTEM READY", "white");
             if (onStartButtonClick != null) {
                 onStartButtonClick.run();
             }
@@ -58,9 +52,7 @@ public class UIManager {
         return titleStartBtn;
     }
     
-    /**
-     * スタートオーバーレイを作成
-     */
+    // スタートオーバーレイを作成
     public VBox createStartOverlay() {
         startOverlay = new VBox(20);
         startOverlay.setAlignment(Pos.CENTER);
@@ -74,14 +66,14 @@ public class UIManager {
         );
         
         // タイトル
-        Label titleLabel = new Label("SYSTEM READY");
+        Label titleLabel = new Label("SELECT DIFFICULTY");
         titleLabel.setStyle("-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
         
         // メッセージラベル
         messageLabel = new Label();
         messageLabel.setStyle("-fx-text-fill: cyan; -fx-font-size: 16px; -fx-font-family: 'Consolas';");
         
-        // モード選択欄（プレイヤー名入力欄を削除）
+        // モード選択欄
         VBox modeBox = createModeSelection();
         
         // ゲーム開始ボタン
@@ -93,9 +85,7 @@ public class UIManager {
         return startOverlay;
     }
     
-    /**
-     * モード選択欄を作成
-     */
+    // モード選択欄を作成
     private VBox createModeSelection() {
         VBox modeBox = new VBox(15);
         modeBox.setAlignment(Pos.CENTER);
@@ -127,9 +117,7 @@ public class UIManager {
         return modeBox;
     }
     
-    /**
-     * ゲーム開始ボタンを作成
-     */
+    // ゲーム開始ボタンを作成
     private Button createGameStartButton() {
         Button startBtn = new Button("GAME START");
         startBtn.setStyle(
@@ -166,23 +154,18 @@ public class UIManager {
         return startBtn;
     }
     
-    /**
-     * メッセージを設定
-     */
+    // メッセージを設定
     public void setMessage(String text, String color) {
         messageLabel.setText(text);
         messageLabel.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 24px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
     }
     
-    /**
-     * メッセージを大きく表示
-     */
+    // メッセージを大きく表示
     public void setLargeMessage(String text, String color) {
         messageLabel.setText(text);
         messageLabel.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 28px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
     }
     
-    // Setters for callbacks
     public void setOnStartButtonClick(Runnable callback) {
         this.onStartButtonClick = callback;
     }
@@ -191,7 +174,7 @@ public class UIManager {
         this.onGameStart = callback;
     }
     
-    // Getters
+    // ゲッター
     public Button getTitleStartBtn() {
         return titleStartBtn;
     }
@@ -222,9 +205,7 @@ public class UIManager {
         titleStartBtn.setVisible(true);
     }
     
-    /**
-     * ゲームオーバーオーバーレイを作成
-     */
+    // ゲームオーバーオーバーレイを作成
     public VBox createGameOverOverlay() {
         gameOverOverlay = new VBox(25);
         gameOverOverlay.setAlignment(Pos.CENTER);
@@ -237,7 +218,6 @@ public class UIManager {
             "-fx-effect: dropshadow(three-pass-box, cyan, 25, 0.6, 0, 0);"
         );
         
-        // メッセージラベル
         Label titleLabel = new Label("TIME UP!");
         titleLabel.setStyle("-fx-text-fill: lime; -fx-font-size: 36px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
         
@@ -245,7 +225,6 @@ public class UIManager {
         scoreLabel = new Label("FINAL SCORE: 00000");
         scoreLabel.setStyle("-fx-text-fill: cyan; -fx-font-size: 28px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
         
-        // ボタンコンテナ
         HBox buttonBox = new HBox(20);
         buttonBox.setAlignment(Pos.CENTER);
         
@@ -273,9 +252,6 @@ public class UIManager {
         return gameOverOverlay;
     }
     
-    /**
-     * スタイル付きボタンを作成
-     */
     private Button createStyledButton(String text, String bgColor, String textColor) {
         Button btn = new Button(text);
         btn.setPrefWidth(180);
@@ -298,17 +274,14 @@ public class UIManager {
         return btn;
     }
     
-    /**
-     * ゲームオーバー画面を表示
-     */
+    // ゲームオーバー画面を表示
     public void showGameOver(int score, boolean isTimeUp) {
-        // メッセージを設定
         Label titleLabel = (Label) gameOverOverlay.getChildren().get(0);
         if (isTimeUp) {
             titleLabel.setText("TIME UP!");
             titleLabel.setStyle("-fx-text-fill: lime; -fx-font-size: 36px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
         } else {
-            titleLabel.setText("MISSION FAILED");
+            titleLabel.setText("GAME OVER");
             titleLabel.setStyle("-fx-text-fill: red; -fx-font-size: 36px; -fx-font-weight: bold; -fx-font-family: 'Consolas';");
         }
         
@@ -318,9 +291,7 @@ public class UIManager {
         gameOverOverlay.setVisible(true);
     }
     
-    /**
-     * ゲームオーバー画面を非表示
-     */
+    // ゲームオーバー画面を非表示
     public void hideGameOver() {
         gameOverOverlay.setVisible(false);
     }
@@ -334,9 +305,7 @@ public class UIManager {
         this.onBackToTitle = callback;
     }
     
-    /**
-     * ポーズメニューを作成
-     */
+    // ポーズメニューを作成
     public VBox createPauseOverlay() {
         pauseOverlay = new VBox(20);
         pauseOverlay.setAlignment(Pos.CENTER);
@@ -389,15 +358,12 @@ public class UIManager {
         
         pauseOverlay.getChildren().addAll(titleLabel, buttonBox);
         pauseOverlay.setVisible(false);
-        pauseOverlay.setManaged(false);  // ★追加: 初期状態でレイアウトからも除外
+        pauseOverlay.setManaged(false); 
         
         return pauseOverlay;
     }
     
-    
-    /**
-     * ポーズメニューを非表示
-     */
+    // ポーズメニューを非表示
     public void hidePause() {
        if (pauseOverlay != null) {
           pauseOverlay.setVisible(false);
@@ -405,9 +371,7 @@ public class UIManager {
        } 
     }
 
-    /**
-     * ポーズメニューを表示
-     */
+    // ポーズメニューを表示
     public void showPause() {
        if (pauseOverlay != null) {
          pauseOverlay.setVisible(true);
@@ -415,16 +379,11 @@ public class UIManager {
        }
     }
     
-    /**
-     * ポーズ中かどうか
-     */
+    // ポーズ中かどうか
     public boolean isPauseVisible() {
         return pauseOverlay.isVisible();
     }
     
-    /**
-     * 続けるコールバックを設定
-     */
     public void setOnResume(Runnable callback) {
         this.onResume = callback;
     }
