@@ -43,6 +43,7 @@ public class UIManager {
         titleStartBtn.setOnAction(e -> {
             titleStartBtn.setVisible(false);
             startOverlay.setVisible(true);
+            startOverlay.setManaged(true);
             if (onStartButtonClick != null) {
                 onStartButtonClick.run();
             }
@@ -80,6 +81,7 @@ public class UIManager {
         
         startOverlay.getChildren().addAll(titleLabel, messageLabel, modeBox, startBtn);
         startOverlay.setVisible(false);
+        startOverlay.setManaged(false);
         
         return startOverlay;
     }
@@ -193,11 +195,17 @@ public class UIManager {
     }
     
     public void showStartOverlay() {
-        startOverlay.setVisible(true);
+        if (startOverlay != null) {
+            startOverlay.setVisible(true);
+            startOverlay.setManaged(true);
+        }
     }
-    
+
     public void hideStartOverlay() {
-        startOverlay.setVisible(false);
+        if (startOverlay != null) {
+            startOverlay.setVisible(false);
+            startOverlay.setManaged(false);
+        }
     }
     
     public void showTitleButton() {
@@ -247,6 +255,7 @@ public class UIManager {
         
         gameOverOverlay.getChildren().addAll(titleLabel, scoreLabel, buttonBox);
         gameOverOverlay.setVisible(false);
+        gameOverOverlay.setManaged(false);
         
         return gameOverOverlay;
     }
@@ -288,11 +297,15 @@ public class UIManager {
         scoreLabel.setText("FINAL SCORE: " + String.format("%05d", score));
         
         gameOverOverlay.setVisible(true);
+        gameOverOverlay.setManaged(true);
     }
     
     // ゲームオーバー画面を非表示
     public void hideGameOver() {
-        gameOverOverlay.setVisible(false);
+        if (gameOverOverlay != null) {
+            gameOverOverlay.setVisible(false);
+            gameOverOverlay.setManaged(false);
+        }
     }
     
     // コールバック設定
@@ -338,7 +351,7 @@ public class UIManager {
         Button restartBtn = createStyledButton("RESTART", "rgba(0, 255, 255, 0.2)", "cyan");
         restartBtn.setPrefWidth(250);
         restartBtn.setOnAction(e -> {
-            hidePause();  // ★追加: ポーズ画面を閉じる
+            hidePause();
             if (onRetry != null) {
                 onRetry.run();
             }
