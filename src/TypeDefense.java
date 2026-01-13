@@ -82,6 +82,8 @@ public class TypeDefense extends Application {
         uiManager.hideStartOverlay();
         uiManager.getTitleStartBtn().setVisible(false);
         GameMode mode = uiManager.getSelectedMode();
+        // 追加ワードをGameManagerへ渡す
+        gameManager.setCustomWord(uiManager.getCustomWord());
         gameManager.startGame(mode);
         canvas.requestFocus();
     }
@@ -110,6 +112,8 @@ public class TypeDefense extends Application {
         }
         
         GameMode mode = uiManager.getSelectedMode();
+        // 追加ワードをGameManagerへ渡す（リスタート時も）
+        gameManager.setCustomWord(uiManager.getCustomWord());
         gameManager.startGame(mode);
         canvas.requestFocus();
     }

@@ -14,6 +14,7 @@ public class UIManager {
     private RadioButton easyBtn, hardBtn, endlessBtn;
     private Label messageLabel;
     private Label scoreLabel;
+    private TextField customWordField; // 任意の追加ワード入力
     
     // コールバック
     private Runnable onStartButtonClick;
@@ -74,12 +75,21 @@ public class UIManager {
         messageLabel.setStyle("-fx-text-fill: cyan; -fx-font-size: 16px; -fx-font-family: 'Consolas';");
         
         // モード選択欄
+        Label cwLabel = new Label("追加ワード(任意)");
+        cwLabel.setStyle("-fx-text-fill: cyan; -fx-font-size: 16px; -fx-font-family: 'Consolas';");
+
+        customWordField = new TextField();
+        customWordField.setPromptText("例: SPACE, JAVA など");
+        customWordField.setTooltip(new Tooltip("ここに入力すると、その単語が稀に出現します。"));
+        customWordField.setMaxWidth(250);
+
+        // モード選択欄
         VBox modeBox = createModeSelection();
         
         // ゲーム開始ボタン
         Button startBtn = createGameStartButton();
         
-        startOverlay.getChildren().addAll(titleLabel, messageLabel, modeBox, startBtn);
+        startOverlay.getChildren().addAll(titleLabel, messageLabel, cwLabel, customWordField, modeBox, startBtn);
         startOverlay.setVisible(false);
         startOverlay.setManaged(false);
         
@@ -173,6 +183,13 @@ public class UIManager {
     
     public void setOnGameStart(Runnable callback) {
         this.onGameStart = callback;
+    }
+
+    // 追加ワード取得（空ならnull）
+    public String getCustomWord() {
+        if (customWordField == null) return null;
+        String s = customWordField.getText();
+        return (s == null || s.trim().isEmpty()) ? null : s.trim().toUpperCase();
     }
     
     // ゲッター

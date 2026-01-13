@@ -6,7 +6,6 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.effect.DropShadow;
 
 // HUDの描画を担当するクラス
-
 public class HUDDrawer {
     
     private Canvas canvas;
