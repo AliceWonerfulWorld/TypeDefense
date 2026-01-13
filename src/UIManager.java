@@ -11,7 +11,6 @@ public class UIManager {
     private VBox startOverlay;
     private VBox gameOverOverlay;
     private VBox pauseOverlay;
-    private TextField nameInput;
     private RadioButton easyBtn, hardBtn, endlessBtn;
     private Label messageLabel;
     private Label scoreLabel;
@@ -381,7 +380,7 @@ public class UIManager {
     
     // ポーズ中かどうか
     public boolean isPauseVisible() {
-        return pauseOverlay.isVisible();
+        return pauseOverlay != null && pauseOverlay.isVisible();
     }
     
     public void setOnResume(Runnable callback) {
